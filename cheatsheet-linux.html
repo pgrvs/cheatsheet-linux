@@ -1,0 +1,4937 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Fiche mémo Linux complète en français : commandes, options, tableaux et exemples, 100 % hors ligne.">
+<title>Linux CheatSheet — Révisions</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' rx='3' fill='%23191919'/%3E%3Cpath d='M4.5 5.5L7.5 8L4.5 10.5M8.5 10.5H11.5' stroke='%23ffffff' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<style>
+/* ==========================================================================
+   PALETTE UTILISATEUR (NEUTRE & ÉPURÉE)
+   ========================================================================== */
+:root {
+    --background-page-color: #191919;
+    --white-color: #ffffff;
+    --background-element-color: #252525;
+    --attachment-tag: #3e3e3e;
+    --background-card: #1e1e1e;
+    --background-card-label: #2c2c2c;
+    --background-card-body: #242424;
+    --box-color: #2e2e2e;
+    --button-hover-color: #424141;
+    --attachment-color: #4a4a4a;
+    --text-muted: #9e9e9e;
+    --border-subtle: #333333;
+    --border-focus: #616161;
+    --banniere-color-1: #007806;
+    --banniere-color-2: #00c306;
+    --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.28);
+    --shadow-hover: 0 8px 28px rgba(0, 0, 0, 0.45);
+    --mark-bg: rgba(255, 214, 10, 0.25);
+    --mark-text: #ffd60a;
+    color-scheme: dark;
+}
+
+:root[data-theme="light"] {
+    --background-page-color: #f0f0f0;
+    --white-color: #1e1e1e;
+    --background-element-color: #ffffff;
+    --attachment-tag: #dcdcdc;
+    --background-card: #ffffff;
+    --background-card-label: #eaeaea;
+    --background-card-body: #f7f7f7;
+    --box-color: #e4e4e4;
+    --button-hover-color: #cccccc;
+    --attachment-color: #bcbcbc;
+    --text-muted: #5a5a5a;
+    --border-subtle: #dddddd;
+    --border-focus: #888888;
+    --banniere-color-1: #007806;
+    --banniere-color-2: #00a008;
+    --shadow-card: 0 2px 12px rgba(0, 0, 0, 0.05);
+    --shadow-hover: 0 8px 24px rgba(0, 0, 0, 0.10);
+    --mark-bg: #fff3b0;
+    --mark-text: #1e1e1e;
+    color-scheme: light;
+}
+
+/* ==========================================================================
+   RESET & BASE
+   ========================================================================== */
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background-color: var(--background-page-color);
+    color: var(--white-color);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.6;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    transition: background-color 0.2s ease, color 0.2s ease;
+    -webkit-font-smoothing: antialiased;
+}
+
+.page-wrapper {
+    width: min(100% - 32px, 1340px);
+    margin-inline: auto;
+    flex: 1;
+    padding-top: 36px;
+    padding-bottom: 60px;
+}
+
+/* ==========================================================================
+   HEADER
+   ========================================================================== */
+.site-header {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 16px;
+    margin-bottom: 28px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border-subtle);
+}
+
+.brand-group {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.brand-logo {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    background: var(--background-element-color);
+    border: 1px solid var(--attachment-tag);
+    display: grid;
+    place-items: center;
+    color: var(--white-color);
+    box-shadow: var(--shadow-card);
+}
+
+.brand-logo svg {
+    width: 24px;
+    height: 24px;
+}
+
+.brand-titles h1 {
+    font-size: clamp(1.5rem, 2.5vw, 2rem);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--white-color);
+    line-height: 1.2;
+}
+
+.brand-titles p {
+    color: var(--text-muted);
+    font-size: 0.92rem;
+    margin-top: 2px;
+}
+
+.header-stats {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.stat-pill {
+    background: var(--background-element-color);
+    border: 1px solid var(--border-subtle);
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+.stat-pill strong {
+    color: var(--white-color);
+}
+
+/* ==========================================================================
+   BARRE DE RECHERCHE & FILTRES (STICKY)
+   ========================================================================== */
+.toolbar-container {
+    position: sticky;
+    top: 14px;
+    z-index: 40;
+    margin-bottom: 28px;
+}
+
+.toolbar {
+    background: color-mix(in srgb, var(--background-card) 92%, transparent);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--attachment-tag);
+    border-radius: 14px;
+    padding: 14px;
+    box-shadow: var(--shadow-card);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.search-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+}
+
+.search-box {
+    flex: 1 1 320px;
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.search-box svg {
+    position: absolute;
+    left: 14px;
+    width: 18px;
+    height: 18px;
+    color: var(--text-muted);
+    pointer-events: none;
+}
+
+.search-box input {
+    width: 100%;
+    padding: 8px 14px 8px 42px;
+    border-radius: 9px;
+    border: 1px solid var(--border-subtle);
+    background: var(--background-page-color);
+    color: var(--white-color);
+    font-size: 0.96rem;
+    font-family: inherit;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.search-box input:focus {
+    outline: none;
+    border-color: var(--border-focus);
+}
+
+.toolbar-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+}
+
+.btn {
+    padding: 10px 15px;
+    border-radius: 9px;
+    border: 1px solid var(--border-subtle);
+    background: var(--box-color);
+    color: var(--white-color);
+    font-family: inherit;
+    font-size: 0.88rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.18s ease, border-color 0.18s ease, transform 0.1s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    white-space: nowrap;
+}
+
+.btn:hover:not(:disabled) {
+    background: var(--button-hover-color);
+    border-color: var(--border-focus);
+}
+
+.btn:active:not(:disabled) {
+    transform: translateY(1px);
+}
+
+.btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+.btn[aria-pressed="true"] {
+    background: var(--white-color);
+    color: var(--background-page-color);
+    border-color: var(--white-color);
+    font-weight: 600;
+}
+
+.btn-primary-green {
+    background: var(--banniere-color-1);
+    color: #ffffff;
+    border-color: var(--banniere-color-1);
+    font-weight: 600;
+}
+
+.btn-primary-green:hover:not(:disabled) {
+    background: var(--banniere-color-2);
+    border-color: var(--banniere-color-2);
+    color: #ffffff;
+}
+
+/* Pilules de catégories */
+.category-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding-top: 4px;
+}
+
+.cat-pill {
+    padding: 5px 12px;
+    border-radius: 999px;
+    border: 1px solid transparent;
+    background: var(--background-element-color);
+    color: var(--text-muted);
+    font-size: 0.82rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.16s ease;
+    font-family: inherit;
+}
+
+.cat-pill:hover {
+    color: var(--white-color);
+    background: var(--box-color);
+}
+
+.cat-pill.active {
+    background: var(--white-color);
+    color: var(--background-page-color);
+    font-weight: 600;
+}
+
+/* ==========================================================================
+   GRILLE FLEX-MASONRY (ZÉRO VIDE, ZÉRO BUG DE COLONNE CSS)
+   ========================================================================== */
+.masonry-board {
+    display: grid;
+    grid-template-columns: repeat(var(--cols, 2), minmax(0, 1fr));
+    gap: 20px;
+    align-items: start;
+}
+
+.masonry-col {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    min-width: 0;
+}
+
+/* ==========================================================================
+   CARTES DE COMMANDES
+   ========================================================================== */
+.card {
+    background: var(--background-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: var(--shadow-card);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    cursor: pointer;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.card:hover {
+    border-color: var(--border-focus);
+    box-shadow: var(--shadow-hover);
+}
+
+.card.pinned {
+    border-color: var(--white-color);
+    box-shadow: 0 0 0 1px var(--white-color), var(--shadow-card);
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border-subtle);
+}
+
+.card-title-group {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+}
+
+.card-title {
+    font-size: 1.22rem;
+    font-weight: 700;
+    color: var(--white-color);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    letter-spacing: -0.02em;
+    word-break: break-word;
+}
+
+.badge-group {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+}
+
+.cat-badge {
+    background: var(--background-card-label);
+    color: var(--white-color);
+    border: 1px solid var(--attachment-tag);
+    padding: 3px 9px;
+    border-radius: 6px;
+    font-size: 0.74rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+}
+
+.kind-badge {
+    background: transparent;
+    color: var(--text-muted);
+    border: 1px solid var(--border-subtle);
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-family: system-ui, sans-serif;
+}
+
+.pin-btn {
+    background: var(--background-element-color);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-muted);
+    width: 30px;
+    height: 30px;
+    border-radius: 7px;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    flex-shrink: 0;
+}
+
+.pin-btn:hover {
+    color: var(--white-color);
+    border-color: var(--border-focus);
+    background: var(--box-color);
+}
+
+.card.pinned .pin-btn {
+    background: var(--white-color);
+    color: var(--background-page-color);
+    border-color: var(--white-color);
+}
+
+.card-desc {
+    color: var(--white-color);
+    opacity: 0.92;
+    font-size: 0.94rem;
+    line-height: 1.55;
+}
+
+.section-label {
+    font-size: 0.76rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-muted);
+    margin-top: 4px;
+    margin-bottom: 6px;
+}
+
+/* Liste d'options structurée */
+.options-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    background: var(--background-card-body);
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid var(--border-subtle);
+}
+
+.opt-row {
+    display: grid;
+    grid-template-columns: minmax(90px, auto) 1fr;
+    gap: 10px;
+    align-items: baseline;
+    font-size: 0.88rem;
+    padding-bottom: 5px;
+    border-bottom: 1px dashed var(--border-subtle);
+}
+
+.opt-row:last-child {
+    padding-bottom: 0;
+    border-bottom: none;
+}
+
+.opt-key {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-weight: 600;
+    color: var(--white-color);
+    background: var(--box-color);
+    padding: 2px 7px;
+    border-radius: 5px;
+    font-size: 0.84rem;
+    justify-self: start;
+    border: 1px solid var(--attachment-tag);
+}
+
+.opt-val {
+    color: var(--white-color);
+    opacity: 0.88;
+}
+
+/* Exemples avec bouton copier */
+.examples-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.example-item {
+    background: var(--background-card-body);
+    border: 1px solid var(--border-subtle);
+    border-radius: 8px;
+    padding: 10px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.example-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+}
+
+.example-code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 0.87rem;
+    font-weight: 600;
+    color: var(--white-color);
+    word-break: break-all;
+}
+
+.copy-btn {
+    background: var(--box-color);
+    border: 1px solid var(--attachment-tag);
+    color: var(--text-muted);
+    padding: 3px 8px;
+    border-radius: 5px;
+    font-size: 0.74rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    flex-shrink: 0;
+}
+
+.copy-btn:hover {
+    color: var(--white-color);
+    background: var(--button-hover-color);
+}
+
+.copy-btn.copied {
+    background: var(--banniere-color-1);
+    color: #ffffff;
+    border-color: var(--banniere-color-1);
+}
+
+.example-exp {
+    font-size: 0.84rem;
+    color: var(--text-muted);
+}
+
+/* Tableaux intégrés aux cartes */
+.table-wrap {
+    overflow-x: auto;
+    border: 1px solid var(--border-subtle);
+    border-radius: 8px;
+    background: var(--background-card-body);
+    margin: 4px 0;
+}
+
+.table-wrap table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.84rem;
+}
+
+.table-wrap caption {
+    text-align: left;
+    padding: 8px 10px;
+    font-weight: 600;
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--border-subtle);
+    background: var(--background-element-color);
+}
+
+.table-wrap th, .table-wrap td {
+    padding: 7px 10px;
+    text-align: left;
+    border-bottom: 1px solid var(--border-subtle);
+    vertical-align: top;
+}
+
+.table-wrap thead th {
+    background: var(--box-color);
+    color: var(--white-color);
+    font-weight: 600;
+}
+
+.table-wrap tbody tr:last-child th,
+.table-wrap tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* Notes & Alertes */
+.card-note {
+    padding: 10px 12px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    background: var(--background-element-color);
+    border-left: 3px solid var(--attachment-color);
+    color: var(--white-color);
+    opacity: 0.92;
+}
+
+.card-note.warning {
+    border-left-color: #d97706;
+    background: color-mix(in srgb, #d97706 10%, var(--background-element-color));
+}
+
+mark {
+    background: var(--mark-bg);
+    color: var(--mark-text);
+    padding: 0 3px;
+    border-radius: 3px;
+}
+
+.empty-state {
+    background: var(--background-card);
+    border: 1px dashed var(--attachment-tag);
+    border-radius: 12px;
+    padding: 48px 20px;
+    text-align: center;
+    color: var(--text-muted);
+    margin: 20px 0;
+}
+
+/* ==========================================================================
+   SECTIONS ASTUCES (ACCORDÉONS)
+   ========================================================================== */
+.tips-section {
+    margin-top: 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+details.tips {
+    background: var(--background-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: 12px;
+    padding: 18px 22px;
+    box-shadow: var(--shadow-card);
+}
+
+details.tips summary {
+    cursor: pointer;
+    list-style: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    font-weight: 600;
+}
+
+details.tips summary::-webkit-details-marker {
+    display: none;
+}
+
+details.tips summary h2 {
+    font-size: 1.1rem;
+    color: var(--white-color);
+    font-weight: 600;
+}
+
+details.tips summary::after {
+    content: "Afficher";
+    font-size: 0.8rem;
+    padding: 4px 10px;
+    border-radius: 6px;
+    background: var(--box-color);
+    border: 1px solid var(--attachment-tag);
+    color: var(--text-muted);
+}
+
+details.tips[open] summary::after {
+    content: "Masquer";
+}
+
+details.tips[open] summary {
+    padding-bottom: 14px;
+    margin-bottom: 14px;
+    border-bottom: 1px solid var(--border-subtle);
+}
+
+details.tips h3 {
+    font-size: 0.98rem;
+    color: var(--white-color);
+    margin: 16px 0 8px;
+}
+
+details.tips p, details.tips li {
+    font-size: 0.92rem;
+    color: var(--white-color);
+    opacity: 0.9;
+    margin: 6px 0;
+}
+
+details.tips ul {
+    padding-left: 20px;
+}
+
+details.tips code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    background: var(--background-card-body);
+    padding: 2px 6px;
+    border-radius: 4px;
+    border: 1px solid var(--border-subtle);
+    font-size: 0.86em;
+}
+
+details.tips .note {
+    margin-top: 12px;
+    padding: 10px 14px;
+    background: var(--background-card-body);
+    border-left: 3px solid var(--border-focus);
+    border-radius: 0 8px 8px 0;
+}
+
+/* ==========================================================================
+   MODALE D'AFFICHAGE AGRANDI (AVEC ARRIÈRE-PLAN FLOUTÉ)
+   ========================================================================== */
+dialog#card-modal {
+    width: min(92vw, 760px);
+    max-height: 88vh;
+    margin: auto;
+    padding: 0;
+    border: 1px solid var(--attachment-color);
+    border-radius: 16px;
+    background: var(--background-card);
+    color: var(--white-color);
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.65);
+    overflow: hidden;
+}
+
+dialog#card-modal::backdrop {
+    background: rgba(10, 10, 10, 0.62);
+    backdrop-filter: blur(7px);
+    -webkit-backdrop-filter: blur(7px);
+    animation: backdropFade 0.2s ease;
+}
+
+dialog#card-modal[open] {
+    animation: modalZoom 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes modalZoom {
+    from { opacity: 0; transform: scale(0.95) translateY(8px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+@keyframes backdropFade {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.modal-header-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 24px;
+    background: var(--background-element-color);
+    border-bottom: 1px solid var(--border-subtle);
+}
+
+.modal-header-bar span {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+.modal-close-btn {
+    padding: 6px 14px;
+    border-radius: 7px;
+    border: 1px solid var(--attachment-tag);
+    background: var(--box-color);
+    color: var(--white-color);
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.modal-close-btn:hover {
+    background: var(--button-hover-color);
+}
+
+.modal-body-container {
+    padding: 24px;
+    max-height: calc(88vh - 60px);
+    overflow-y: auto;
+}
+
+.modal-body-container .card {
+    border: none;
+    box-shadow: none;
+    padding: 0;
+    cursor: default;
+    background: transparent;
+}
+
+.modal-body-container .card-title {
+    font-size: 1.5rem;
+}
+
+.modal-body-container .card-desc {
+    font-size: 1.02rem;
+}
+
+.modal-body-container .pin-btn {
+    display: none;
+}
+
+/* ==========================================================================
+   FOOTER AVEC BOUTONS CLASSIQUES (THÈME + TÉLÉCHARGEMENT)
+   ========================================================================== */
+.site-footer {
+    border-top: 1px solid var(--border-subtle);
+    background: var(--background-element-color);
+    padding: 24px 20px;
+    margin-top: auto;
+}
+
+.footer-inner {
+    width: min(100%, 1340px);
+    margin-inline: auto;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+}
+
+.footer-info {
+    font-size: 0.88rem;
+    color: var(--text-muted);
+}
+
+.footer-controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+}
+
+@media print {
+    .toolbar-container, .site-footer, .pin-btn, .copy-btn {
+        display: none !important;
+    }
+    .masonry-board {
+        display: block;
+    }
+    .card {
+        break-inside: avoid;
+        margin-bottom: 16px;
+        box-shadow: none;
+        border: 1px solid #ccc;
+    }
+}
+</style>
+</head>
+<body>
+
+<div class="page-wrapper">
+    <header class="site-header">
+        <div class="brand-group">
+            <div class="brand-logo" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="4 17 10 11 4 5"></polyline>
+                    <line x1="12" y1="19" x2="20" y2="19"></line>
+                </svg>
+            </div>
+            <div class="brand-titles">
+                <h1>Linux CheatSheet</h1>
+                <p>Fiche de révision complète et structurée</p>
+            </div>
+        </div>
+        <div class="header-stats">
+            <span class="stat-pill" id="result-count">Chargement...</span>
+        </div>
+    </header>
+
+    <div class="toolbar-container">
+        <div class="toolbar">
+            <div class="search-row">
+                <div class="search-box">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                    <input type="search" id="search-input" placeholder="Rechercher une commande, une option, un mot-clé">
+                </div>
+                <div class="toolbar-actions">
+                    <button type="button" class="btn" id="title-only-btn" aria-pressed="false" title="Rechercher uniquement dans le nom des commandes">
+                        Titre uniquement
+                    </button>
+                    <button type="button" class="btn" id="pinned-only-btn" aria-pressed="false" disabled title="Afficher uniquement les cartes épinglées pour vos révisions">
+                        Sélection (0)
+                    </button>
+                    <button type="button" class="btn" id="reset-btn" title="Réinitialiser la recherche et les filtres">
+                        Réinitialiser
+                    </button>
+                </div>
+            </div>
+            <div class="category-pills" id="category-pills" role="tablist" aria-label="Filtrer par catégorie">
+                <!-- Généré dynamiquement -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Conteneur Masonry piloté en JS : garantit 0 espace vide et 0 bug de survol -->
+    <main id="results-board" class="masonry-board"></main>
+
+    <section class="tips-section">
+        <details class="tips">
+  <summary><h2 id="tips-title">Ubuntu : quelle aide utiliser ? Commence par <code>type</code></h2></summary>
+  <p>Sur Ubuntu, le shell par défaut est Bash. Avant de chercher de l'aide, demande-lui comment il exécute la commande avec <code>type</code>.</p>
+  <h3>1. Identifier la commande : <code>type</code></h3>
+  <ul>
+    <li><code>type cd</code> → <code>cd is a shell builtin</code> : commande interne, intégrée à Bash, sans fichier sur le disque.</li>
+    <li><code>type ls</code> → <code>ls is aliased to 'ls --color=auto'</code> : Ubuntu définit souvent un alias par défaut.</li>
+    <li><code>type -a ls</code> : liste toutes les définitions, ici l'alias puis le fichier réel, souvent <code>/usr/bin/ls</code>.</li>
+    <li><code>type -t cd</code> : donne seulement le type : <code>builtin</code>, <code>file</code>, <code>alias</code>, <code>function</code> ou <code>keyword</code>.</li>
+  </ul>
+  <h3>2. Choisir l'aide selon le résultat</h3>
+  <ul>
+    <li><strong>Commande interne</strong> (<code>builtin</code>) : <code>help cd</code> affiche l'aide Bash. Pour la documentation complète, <code>man bash</code>, puis tape <code>/cd</code> pour chercher.</li>
+    <li><strong>Programme externe</strong> (un fichier) : <code>man ls</code> ouvre la page de manuel, <code>ls --help</code> donne un résumé rapide.</li>
+    <li><strong>Outils GNU</strong> : <code>info ls</code> ou <code>info coreutils</code> ouvrent une documentation plus détaillée, si le paquet <code>info</code> est installé.</li>
+    <li><strong>Alias ou fonction</strong> : <code>type</code> montre la définition ; l'aide porte sur la commande réelle qu'elle appelle.</li>
+  </ul>
+  <p>Exemple : <code>help ls</code> répond <code>no help topic matching 'ls'</code>. Ce n'est pas une erreur : <code>ls</code> n'est pas une commande interne, il faut utiliser <code>man ls</code> ou <code>ls --help</code>.</p>
+  <h3>Navigation et recherche</h3>
+  <ul>
+    <li>Dans <code>man</code> et <code>info</code> : <code>q</code> quitte, <code>/mot</code> cherche, <code>n</code> va à l'occurrence suivante.</li>
+    <li><code>man -k compression</code> ou <code>apropos compression</code> cherche une commande d'après un mot-clé.</li>
+    <li>Si <code>man ls</code> répond <code>No manual entry</code>, le paquet <code>man-db</code> ou <code>manpages</code> manque : <code>sudo apt install man-db manpages</code>.</li>
+  </ul>
+  <p class="note"><strong>À retenir :</strong> <code>type nom</code> d'abord. Si le résultat est <code>builtin</code>, utilise <code>help</code> ou <code>man bash</code>. Si c'est un fichier, utilise <code>man</code>, <code>--help</code> ou <code>info</code>. Les réponses exactes peuvent varier selon le shell (zsh, fish) et les paquets installés.</p>
+</details>
+<details class="tips">
+  <summary><h2 id="pipes-title">Enchaîner les commandes de texte : exemples</h2></summary>
+  <p>Le principe : chaque commande lit une entrée, la transforme et écrit une sortie. <code>|</code> (pipe) branche la sortie de l'une sur l'entrée de la suivante. Le texte circule ainsi d'une étape à l'autre, sans fichier intermédiaire.</p>
+  <h3>1. Filtrer, trier, compter</h3>
+  <ul>
+    <li><code>grep -i erreur app.log | sort | uniq -c | sort -rn</code> : les messages d'erreur, comptés, du plus fréquent au moins fréquent.</li>
+    <li><code>cut -d, -f2 données.csv | sort | uniq -c</code> : nombre d'occurrences de chaque valeur de la colonne 2.</li>
+    <li><code>cut -d, -f2 données.csv | sort -u</code> : valeurs distinctes de la colonne 2 (équivalent à <code>uniq</code> après <code>sort</code>).</li>
+    <li><code>sort liste.txt | uniq -d</code> : affiche seulement les lignes en double.</li>
+    <li><code>grep -v '^#' /etc/ssh/sshd_config | grep -v '^$'</code> : retire les commentaires (lignes commençant par #) et les lignes vides.</li>
+  </ul>
+  <h3>2. Enregistrer au passage : <code>tee</code></h3>
+  <ul>
+    <li><code>grep ERROR app.log | tee erreurs.txt | wc -l</code> : écrit les erreurs dans erreurs.txt, et affiche leur nombre.</li>
+    <li><code>ls -l | tee liste.txt | grep '\.sh$'</code> : enregistre toute la liste, mais n'affiche que les scripts.</li>
+    <li><code>date | tee -a journal.txt</code> : ajoute la date au journal, sans l'écraser (<code>-a</code>).</li>
+  </ul>
+  <h3>3. Extraire des colonnes : <code>cut</code>, <code>sort -t</code></h3>
+  <ul>
+    <li><code>cut -d: -f1,3 /etc/passwd</code> : nom et UID de chaque compte (séparateur deux-points).</li>
+    <li><code>cut -d: -f1,3 /etc/passwd | sort -t: -k2,2n</code> : même chose, trié par UID numérique.</li>
+    <li><code>sort -t, -k3,3nr ventes.csv</code> : trie un CSV par la colonne 3, en numérique et du plus grand au plus petit.</li>
+  </ul>
+  <h3>4. Les mots les plus fréquents</h3>
+  <ul>
+    <li><code>tr -cs '[:alpha:]' '\n' &lt; texte.txt | tr 'A-Z' 'a-z' | sort | uniq -c | sort -rn | head -10</code> : découpe le texte en mots, les met en minuscules, puis garde les 10 plus fréquents.</li>
+  </ul>
+  <h3>5. Extraire et limiter la largeur</h3>
+  <ul>
+    <li><code>ps -eo pid,comm | grep sshd | cut -c1-20</code> : PID et nom des processus sshd, en limitant la largeur.</li>
+  </ul>
+  <p class="note"><strong>Pièges à éviter :</strong></p>
+  <ul>
+    <li><code>uniq</code> ne voit que les lignes voisines : trie avant avec <code>sort</code>.</li>
+    <li><code>cut</code> prend chaque délimiteur à la lettre : deux espaces de suite font deux colonnes vides. Pour des espaces multiples, réduis-les d'abord avec <code>tr -s ' '</code>.</li>
+    <li><code>tee</code> écrase le fichier, sauf avec <code>-a</code>.</li>
+    <li>Ne fais jamais <code>sort f.txt &gt; f.txt</code> : le shell vide f.txt avant que sort ne le lise. Écris dans un autre fichier, ou utilise <code>sort -o f.txt f.txt</code>.</li>
+    <li>Le délimiteur de <code>cut</code> et de <code>sort -t</code> est un seul caractère. Pour une tabulation : <code>cut -f2</code> utilise la tabulation par défaut.</li>
+  </ul>
+</details>
+    </section>
+</div>
+
+<!-- Pied de page avec les boutons classiques -->
+<footer class="site-footer">
+    <div class="footer-inner">
+        <div class="footer-info">
+            Fiche mémo Linux — Consultable 100 % hors connexion.
+        </div>
+        <div class="footer-controls">
+            <button type="button" class="btn" id="theme-toggle-btn">
+                Passer au thème clair
+            </button>
+            <button type="button" class="btn" id="top-btn">
+                Remonter en haut
+            </button>
+            <button type="button" class="btn btn-primary-green" id="download-btn">
+                Télécharger la page HTML
+            </button>
+        </div>
+    </div>
+</footer>
+
+<!-- Modale centrée avec arrière-plan flouté -->
+<dialog id="card-modal" aria-label="Détail de la commande">
+    <div class="modal-header-bar">
+        <span>Vue détaillée</span>
+        <button type="button" class="modal-close-btn" id="modal-close-btn">Fermer</button>
+    </div>
+    <div class="modal-body-container" id="modal-body"></div>
+</dialog>
+
+<script>
+const commands = [
+  {
+    "name": "ls",
+    "category": "Fichiers",
+    "description": "Liste les fichiers et répertoires.",
+    "options": [
+      [
+        "-l",
+        "Affichage détaillé."
+      ],
+      [
+        "-a",
+        "Affiche aussi les fichiers cachés."
+      ],
+      [
+        "-h",
+        "Tailles lisibles avec -l."
+      ],
+      [
+        "-R",
+        "Parcours récursif."
+      ],
+      [
+        "-t",
+        "Tri par date."
+      ],
+      [
+        "-r",
+        "Inverse l'ordre du tri."
+      ]
+    ],
+    "examples": [
+      [
+        "ls -la",
+        "Liste détaillée avec fichiers cachés."
+      ],
+      [
+        "ls -lh",
+        "Affiche les tailles lisibles."
+      ],
+      [
+        "ls -lt",
+        "Trie par date de modification."
+      ],
+      [
+        "ls -R /etc",
+        "Liste récursivement le contenu de /etc."
+      ]
+    ]
+  },
+  {
+    "name": "cd",
+    "category": "Fichiers",
+    "description": "Change le répertoire courant.",
+    "options": [
+      [
+        "..",
+        "Répertoire parent."
+      ],
+      [
+        "~",
+        "Répertoire personnel."
+      ],
+      [
+        "-",
+        "Répertoire précédent."
+      ]
+    ],
+    "examples": [
+      [
+        "cd /etc",
+        "Va dans /etc."
+      ],
+      [
+        "cd ..",
+        "Remonte d'un niveau."
+      ],
+      [
+        "cd ~",
+        "Revient au répertoire personnel."
+      ]
+    ]
+  },
+  {
+    "name": "cp",
+    "category": "Fichiers",
+    "description": "Copie des fichiers ou répertoires.",
+    "options": [
+      [
+        "-r",
+        "Copie récursive des répertoires."
+      ],
+      [
+        "-i",
+        "Demande confirmation avant écrasement."
+      ],
+      [
+        "-v",
+        "Affiche les opérations."
+      ],
+      [
+        "-p",
+        "Préserve autant que possible les attributs."
+      ]
+    ],
+    "examples": [
+      [
+        "cp fichier.txt copie.txt",
+        "Copie un fichier."
+      ],
+      [
+        "cp -r dossier/ sauvegarde/",
+        "Copie un répertoire."
+      ],
+      [
+        "cp -i a.txt b.txt",
+        "Demande avant écrasement."
+      ]
+    ]
+  },
+  {
+    "name": "mv",
+    "category": "Fichiers",
+    "description": "Déplace ou renomme des fichiers.",
+    "options": [
+      [
+        "-i",
+        "Demande confirmation avant écrasement."
+      ],
+      [
+        "-v",
+        "Affiche les opérations."
+      ],
+      [
+        "-n",
+        "Ne remplace pas un fichier existant (GNU)."
+      ]
+    ],
+    "examples": [
+      [
+        "mv ancien.txt nouveau.txt",
+        "Renomme un fichier."
+      ],
+      [
+        "mv fichier.txt /tmp/",
+        "Déplace un fichier."
+      ]
+    ]
+  },
+  {
+    "name": "rm",
+    "category": "Fichiers",
+    "description": "Supprime des fichiers.",
+    "options": [
+      [
+        "-r",
+        "Supprime récursivement un répertoire."
+      ],
+      [
+        "-f",
+        "Force la suppression sans confirmation."
+      ],
+      [
+        "-i",
+        "Demande confirmation."
+      ],
+      [
+        "-v",
+        "Affiche les suppressions."
+      ]
+    ],
+    "examples": [
+      [
+        "rm fichier.txt",
+        "Supprime un fichier."
+      ],
+      [
+        "rm -r dossier/",
+        "Supprime un répertoire et son contenu."
+      ],
+      [
+        "rm -i *.tmp",
+        "Demande confirmation pour chaque fichier."
+      ]
+    ],
+    "warning": "Attention : rm ne possède pas de corbeille standard."
+  },
+  {
+    "name": "chmod",
+    "category": "Permissions",
+    "description": "Modifie les permissions d'un fichier ou d'un répertoire en notation symbolique (lettres).",
+    "options": [
+      [
+        "-R",
+        "Applique les droits récursivement."
+      ],
+      [
+        "u / g / o / a",
+        "u = propriétaire (user), g = groupe (group), o = autres (others), a = tous (all = ugo)."
+      ],
+      [
+        "+ / - / =",
+        "+ ajoute des droits, - retire des droits, = fixe exactement les droits."
+      ],
+      [
+        "r / w / x",
+        "r = lecture (read), w = écriture (write), x = exécution ou traversée de dossier (execute)."
+      ]
+    ],
+    "examples": [
+      [
+        "chmod u=rwx,go=rx script.sh",
+        "Propriétaire rwx, groupe et autres r-x."
+      ],
+      [
+        "chmod u=rw,go=r fichier.txt",
+        "Propriétaire rw-, groupe et autres r--."
+      ],
+      [
+        "chmod u+x script.sh",
+        "Ajoute le droit d'exécution au propriétaire."
+      ],
+      [
+        "chmod a+x,g+r,o-r test",
+        "Combine plusieurs modifications séparées par des virgules."
+      ],
+      [
+        "chmod a-x rep3",
+        "Retire le droit de traversée (x) à tout le monde sur le dossier rep3."
+      ],
+      [
+        "chmod a+w rep2/",
+        "Ajoute le droit d'écriture à tous sur le dossier rep2."
+      ]
+    ],
+    "tip": "On peut combiner plusieurs règles en les séparant par une virgule sans espace (ex : chmod u=rwx,g=rx,o= dossier)."
+  },
+  {
+    "name": "Permissions : fichier ou répertoire ?",
+    "category": "Permissions",
+    "description": "Les droits r, w et x n’ont pas le même sens sur un fichier et sur un répertoire. Pour un répertoire, x signifie « traverser ».",
+    "tables": [
+      {
+        "caption": "Sens des droits",
+        "headers": [
+          "Droit",
+          "Sur un fichier",
+          "Sur un répertoire"
+        ],
+        "rows": [
+          [
+            "r",
+            "Lire le contenu (cat)",
+            "Lister les noms (ls)"
+          ],
+          [
+            "w",
+            "Modifier le contenu",
+            "Créer, supprimer, renommer des entrées (avec x)"
+          ],
+          [
+            "x",
+            "Exécuter comme programme ou script",
+            "Traverser : entrer (cd) et accéder aux entrées par leur chemin"
+          ]
+        ]
+      },
+      {
+        "caption": "Peut-on traverser le dossier ?",
+        "headers": [
+          "Droits du dossier",
+          "ls",
+          "Traverser (cd)",
+          "Accéder à un fichier connu",
+          "Créer ou supprimer"
+        ],
+        "rows": [
+          [
+            "---",
+            "Non",
+            "Non",
+            "Non",
+            "Non"
+          ],
+          [
+            "r--",
+            "Noms seulement (ls -l échoue)",
+            "Non",
+            "Non",
+            "Non"
+          ],
+          [
+            "--x",
+            "Non",
+            "Oui",
+            "Oui, si le fichier est lisible",
+            "Non"
+          ],
+          [
+            "r-x",
+            "Oui",
+            "Oui",
+            "Oui",
+            "Non (il faut w)"
+          ],
+          [
+            "rwx",
+            "Oui",
+            "Oui",
+            "Oui",
+            "Oui"
+          ]
+        ]
+      }
+    ],
+    "options": [],
+    "examples": [
+      [
+        "chmod u=x projet",
+        "Le propriétaire n’a plus que x : cd fonctionne, ls échoue."
+      ],
+      [
+        "chmod u=r projet",
+        "Le propriétaire n’a plus que r : ls fonctionne, cd échoue."
+      ],
+      [
+        "cd projet",
+        "Échoue avec « Permission denied » si x manque."
+      ],
+      [
+        "ls -ld projet",
+        "Affiche les droits du dossier lui-même, sans son contenu."
+      ]
+    ],
+    "warning": "Les droits du fichier ne suffisent pas à le supprimer : c’est le w du dossier qui le contient qui compte."
+  },
+  {
+    "name": "umask : droits par défaut",
+    "category": "Permissions",
+    "description": "umask retire des droits par défaut aux fichiers et répertoires créés. Il ne modifie jamais les objets existants. Un nouveau fichier n’a pas le droit x par défaut.",
+    "tables": [
+      {
+        "caption": "Calcul avec umask u=rwx,g=rx,o=rx (valeur courante fréquente)",
+        "headers": [
+          "Élément",
+          "Droits de base",
+          "Droits obtenus"
+        ],
+        "rows": [
+          [
+            "Fichier",
+            "rw-rw-rw-",
+            "rw-r--r--"
+          ],
+          [
+            "Répertoire",
+            "rwxrwxrwx",
+            "rwxr-xr-x"
+          ]
+        ]
+      },
+      {
+        "caption": "Réglages courants (ce qu’affiche umask -S)",
+        "headers": [
+          "Réglage",
+          "Fichier créé",
+          "Répertoire créé"
+        ],
+        "rows": [
+          [
+            "u=rwx,g=rx,o=rx",
+            "rw-r--r--",
+            "rwxr-xr-x"
+          ],
+          [
+            "u=rwx,g=rx,o=",
+            "rw-r-----",
+            "rwxr-x---"
+          ],
+          [
+            "u=rwx,g=,o=",
+            "rw-------",
+            "rwx------"
+          ]
+        ]
+      }
+    ],
+    "options": [],
+    "examples": [
+      [
+        "umask",
+        "Affiche le masque actuel."
+      ],
+      [
+        "umask -S",
+        "Affiche le masque en notation symbolique (ce qui reste autorisé)."
+      ],
+      [
+        "umask -S a=,u=rwx",
+        "Seul le propriétaire a tous les droits (rwx) ; groupe et autres n'ont rien."
+      ],
+      [
+        "umask u=rwx,g=rx,o=",
+        "Les autres n'ont aucun droit sur les nouveaux fichiers et dossiers."
+      ],
+      [
+        "touch test.txt && ls -l test.txt",
+        "Vérifie les droits appliqués à un nouveau fichier."
+      ],
+      [
+        "echo 'umask u=rwx,g=rx,o=' >> ~/.bashrc",
+        "Rend le réglage permanent pour les prochaines sessions Bash."
+      ]
+    ],
+    "warning": "umask ne change pas les fichiers existants : utilise chmod pour cela. Le masque se lit à l’envers : umask -S indique ce qui reste autorisé."
+  },
+  {
+    "name": "grep",
+    "category": "Recherche",
+    "description": "Recherche un motif dans du texte.",
+    "options": [
+      [
+        "-i",
+        "Ignore la casse."
+      ],
+      [
+        "-n",
+        "Affiche les numéros de ligne."
+      ],
+      [
+        "-r",
+        "Recherche récursivement."
+      ],
+      [
+        "-v",
+        "Affiche les lignes sans correspondance."
+      ],
+      [
+        "-E",
+        "Utilise les expressions régulières étendues."
+      ],
+      [
+        "-c",
+        "Compte les lignes correspondantes."
+      ]
+    ],
+    "examples": [
+      [
+        "grep 'erreur' fichier.log",
+        "Recherche le mot erreur."
+      ],
+      [
+        "grep -in 'error' fichier.log",
+        "Recherche sans casse avec numéros de ligne."
+      ],
+      [
+        "grep -r 'TODO' dossier/",
+        "Recherche récursivement."
+      ]
+    ]
+  },
+  {
+    "name": "find",
+    "category": "Recherche",
+    "description": "Recherche des fichiers selon des critères.",
+    "options": [
+      [
+        "-name",
+        "Recherche par nom."
+      ],
+      [
+        "-iname",
+        "Recherche par nom sans distinction de casse."
+      ],
+      [
+        "-type f",
+        "Fichiers ordinaires."
+      ],
+      [
+        "-type d",
+        "Répertoires."
+      ],
+      [
+        "-size",
+        "Taille : c (octets), k (Ko), M (Mo), G (Go). +N = plus grand que N, -N = plus petit, N = exactement N."
+      ],
+      [
+        "-empty",
+        "Fichiers ou dossiers vides."
+      ],
+      [
+        "-mtime N",
+        "Date de modification du contenu, en jours. +N = plus de N jours, -N = moins de N jours."
+      ],
+      [
+        "-atime N",
+        "Date du dernier accès (lecture), en jours. Même logique que -mtime."
+      ],
+      [
+        "-ctime N",
+        "Date du dernier changement des métadonnées (droits, propriétaire) ou du contenu. Ce n'est pas la date de création."
+      ],
+      [
+        "-mmin N, -amin N, -cmin N",
+        "Même chose, mais en minutes."
+      ],
+      [
+        "-newer FICHIER",
+        "Fichiers modifiés après FICHIER."
+      ],
+      [
+        "-o / -a",
+        "Ou / et logique : combine plusieurs critères."
+      ],
+      [
+        "-exec CMD {} \\;",
+        "Lance CMD sur chaque résultat ; {} désigne le fichier trouvé."
+      ],
+      [
+        "-ok CMD {} \\;",
+        "Comme -exec, mais demande confirmation (y/n) pour chaque résultat."
+      ],
+      [
+        "-maxdepth N",
+        "Limite la recherche à N niveaux de profondeur (1 = dossier courant uniquement)."
+      ],
+      [
+        "-mindepth N",
+        "Ignore les N premiers niveaux de profondeur."
+      ],
+      [
+        "! ou -not",
+        "Inverse le critère suivant (ex : ! -name '*.old')."
+      ],
+      [
+        "\\( crit1 -o crit2 \\)",
+        "Parenthèses échappées indispensables pour grouper un OU logique (-o)."
+      ],
+      [
+        "-delete",
+        "Supprime directement les fichiers trouvés (à placer toujours en fin de commande)."
+      ]
+    ],
+    "examples": [
+      [
+        "find . -name '*.txt'",
+        "Recherche les fichiers TXT."
+      ],
+      [
+        "find /tmp -type f",
+        "Recherche les fichiers ordinaires."
+      ],
+      [
+        "find . -type d -name 'test*'",
+        "Recherche les répertoires dont le nom commence par test."
+      ],
+      [
+        "find / -name 'nginx.conf' 2>/dev/null",
+        "Cherche dans tout le système ; 2>/dev/null masque les « Permission denied »."
+      ],
+      [
+        "find . -type f -mtime -7",
+        "Fichiers modifiés il y a moins de 7 jours."
+      ],
+      [
+        "find . -type f -mtime +30",
+        "Fichiers modifiés il y a plus de 30 jours."
+      ],
+      [
+        "find . -type f -atime +365",
+        "Fichiers jamais lus depuis plus d'un an."
+      ],
+      [
+        "find . -ctime -1",
+        "Fichiers dont les droits ou le contenu ont changé depuis moins de 24 h."
+      ],
+      [
+        "find . -mmin -60",
+        "Fichiers modifiés dans la dernière heure."
+      ],
+      [
+        "find . -type f -size +10M",
+        "Fichiers de plus de 10 Mo."
+      ],
+      [
+        "find . -type f -size -100k",
+        "Fichiers de moins de 100 Ko."
+      ],
+      [
+        "find . -type f -empty",
+        "Fichiers vides."
+      ],
+      [
+        "find . -name '*.log' -size +1M -mtime +7",
+        "Logs de plus de 1 Mo modifiés il y a plus de 7 jours."
+      ],
+      [
+        "find . -name '*.tmp' -exec rm {} \\;",
+        "Supprime les .tmp trouvés (teste d'abord sans -exec)."
+      ],
+      [
+        "find . -name '*.tmp' -ok rm {} \\;",
+        "Demande y/n avant chaque suppression, au lieu de tout supprimer d'un coup."
+      ],
+      [
+        "find /etc -maxdepth 2 -name '*conf' -mtime -90",
+        "Fichiers *conf dans /etc (max 2 niveaux) modifiés il y a moins de 90 jours."
+      ],
+      [
+        "find . -name '*.old' -ctime +30 -delete",
+        "Supprime les .old dont les métadonnées ont changé il y a plus de 30 jours."
+      ],
+      [
+        "find . -name 'dir*' -type d -ok chmod o-x {} \\;",
+        "Retire x aux autres sur chaque dossier dir* après confirmation."
+      ],
+      [
+        "find . \\( -name 'dir2' -o -name 'dir22' \\) -type d -ok chmod o-r {} \\;",
+        "Cible dir2 OU dir22 grâce aux parenthèses échappées."
+      ],
+      [
+        "find . -name 'fic*' ! -name '*.old' -ok mv {} {}.old \\;",
+        "Renomme les fic* en .old en excluant ceux déjà en .old."
+      ],
+      [
+        "find dossier/ -type f -name '*.txt' -exec basename {} \\;",
+        "Affiche uniquement le nom de chaque fichier trouvé (sans le chemin)."
+      ]
+    ],
+    "tip": "Les erreurs d'accès vont sur la sortie d'erreur (stderr) : 2>/dev/null les masque sans changer les résultats. Pour la date, -mtime, -atime et -ctime se comptent en jours entiers."
+  },
+  {
+    "name": "locate",
+    "category": "Recherche",
+    "description": "Cherche des fichiers par leur nom dans une base d'index : très rapide, mais la base n'est pas toujours à jour.",
+    "options": [
+      [
+        "-i",
+        "Ignore la casse."
+      ],
+      [
+        "-b",
+        "Cherche dans le nom de base seulement (le dernier élément du chemin)."
+      ],
+      [
+        "-c",
+        "Affiche seulement le nombre de résultats."
+      ],
+      [
+        "-l N",
+        "Limite à N résultats."
+      ],
+      [
+        "-r",
+        "Utilise une expression régulière de base."
+      ]
+    ],
+    "examples": [
+      [
+        "locate nginx.conf",
+        "Affiche tous les chemins contenant nginx.conf."
+      ],
+      [
+        "locate -i readme",
+        "Cherche readme, README, ReadMe…"
+      ],
+      [
+        "locate -b '\\nginx.conf'",
+        "Cherche seulement les fichiers dont le nom est exactement nginx.conf."
+      ],
+      [
+        "locate '*.conf' | wc -l",
+        "Compte les fichiers .conf indexés (le motif est entre guillemets)."
+      ],
+      [
+        "locate -l 20 .",
+        "Affiche les 20 premiers chemins contenant un point."
+      ],
+      [
+        "locate . | grep -i ssh",
+        "Filtre la liste : plus utile que locate . seul, qui renvoie presque tout."
+      ],
+      [
+        "sudo updatedb",
+        "Met la base à jour tout de suite (sinon, une mise à jour automatique a lieu une fois par jour)."
+      ]
+    ],
+    "warning": "Un fichier créé récemment peut ne pas apparaître : lance sudo updatedb, ou utilise find, qui parcourt le disque en direct.",
+    "tip": "Sur Ubuntu récent, locate est fourni par le paquet plocate : sudo apt install plocate."
+  },
+  {
+    "name": "PPID : trouver le parent d'un processus",
+    "category": "Processus",
+    "description": "Donne le PID du parent (PPID) d'un processus. $$ est le PID du shell courant ; $PPID est le PID du parent de ce shell.",
+    "options": [
+      [
+        "ps -o ppid= -p PID",
+        "Affiche seulement le PPID. Le = supprime l'en-tête de colonne."
+      ],
+      [
+        "$$",
+        "PID du shell courant."
+      ],
+      [
+        "$PPID",
+        "PID du processus qui a lancé le shell (souvent le terminal ou un autre shell)."
+      ],
+      [
+        "/proc/PID/status",
+        "Sur Linux, la ligne PPid: donne la même information."
+      ]
+    ],
+    "examples": [
+      [
+        "ps -o ppid= -p 1234",
+        "Affiche le PPID du processus 1234."
+      ],
+      [
+        "echo $$",
+        "Affiche le PID du shell courant."
+      ],
+      [
+        "echo $PPID",
+        "Affiche le PID du parent du shell."
+      ],
+      [
+        "ps -o pid,ppid,comm -p $$",
+        "Affiche le PID, le PPID et le nom du shell courant."
+      ],
+      [
+        "grep PPid /proc/1234/status",
+        "Même information, lue directement dans /proc (Linux)."
+      ],
+      [
+        "ps -o pid,ppid,comm -p $(pgrep -n sshd)",
+        "PPID du dernier sshd lancé (pgrep donne le PID)."
+      ],
+      [
+        "pstree -pls $$",
+        "Chaîne des parents du shell courant, jusqu'à systemd, avec les PID (voir la carte pstree)."
+      ]
+    ],
+    "warning": "$PPID est fixé au lancement du shell : si le parent s'arrête, la valeur pointe vers un PID qui n'existe plus. Ce n'est pas un suivi en direct.",
+    "tip": "Pour voir toute la chaîne des parents jusqu'à systemd, utilise pstree -pls PID (voir la carte pstree)."
+  },
+  {
+    "name": "ps",
+    "category": "Processus",
+    "description": "Affiche les processus en cours.",
+    "options": [
+      [
+        "aux",
+        "Liste détaillée des processus, syntaxe BSD."
+      ],
+      [
+        "-ef",
+        "Liste complète au format Unix."
+      ],
+      [
+        "-elf",
+        "Tous les processus au format long : S (état), PRI, NI (niceness), PPID."
+      ],
+      [
+        "-o COLONNES",
+        "Choisit les colonnes, par exemple -o pid,stat,comm."
+      ],
+      [
+        "--forest",
+        "Affiche l'arborescence parent / enfant."
+      ],
+      [
+        "-u USER",
+        "Filtre par utilisateur."
+      ],
+      [
+        "-p PID",
+        "Affiche un processus précis."
+      ]
+    ],
+    "examples": [
+      [
+        "ps aux",
+        "Affiche les processus."
+      ],
+      [
+        "ps -ef",
+        "Affiche les processus au format étendu."
+      ],
+      [
+        "ps -elf | head -n 15",
+        "Format long, les 15 premières lignes."
+      ],
+      [
+        "ps -elf --forest",
+        "Montre quel processus a lancé quel autre, en arbre."
+      ],
+      [
+        "ps -p 1234",
+        "Affiche le processus de PID 1234."
+      ],
+      [
+        "ps -o pid,ppid,stat,ni,comm -p 1234",
+        "Affiche seulement quelques colonnes du processus 1234."
+      ],
+      [
+        "ps -o ppid= -p 1234",
+        "Affiche seulement le PPID du processus 1234 (voir la carte PPID)."
+      ],
+      [
+        "ps -ef | grep '/sbin/init' | grep -v 'grep'",
+        "Filtre un processus en excluant la ligne de la commande grep elle-même."
+      ]
+    ],
+    "tip": "Dans ps -elf, PPID est le processus parent et S l'état (voir la carte États des processus)."
+  },
+  {
+    "name": "États des processus : R, S, D, T, Z",
+    "category": "Processus",
+    "description": "La colonne S de ps indique l'état d'un processus : en cours, en attente, bloqué ou terminé.",
+    "options": [
+      [
+        "R",
+        "Running : en cours d'exécution ou prêt à l'être."
+      ],
+      [
+        "S",
+        "Sleeping : en attente d'un événement (clavier, réseau, minuterie). Peut être réveillé par un signal."
+      ],
+      [
+        "D",
+        "Uninterruptible sleep, souvent appelé device : attend un disque ou un périphérique. Ne répond pas aux signaux, même SIGKILL, tant que l'opération n'est pas finie."
+      ],
+      [
+        "T",
+        "Stopped : suspendu, par SIGSTOP ou Ctrl+Z."
+      ],
+      [
+        "Z",
+        "Zombie : terminé, attend que son parent lise son code de retour. Il ne consomme ni CPU ni mémoire utile."
+      ],
+      [
+        "<, N, +, s, l",
+        "Suffixes : priorité haute, basse, premier plan, leader de session, multi-thread."
+      ]
+    ],
+    "examples": [
+      [
+        "ps -eo pid,stat,comm | head",
+        "Affiche l'état de quelques processus."
+      ],
+      [
+        "ps -eo pid,stat,comm | grep -E '^ *[0-9]+ Z'",
+        "Liste les zombies."
+      ],
+      [
+        "ps -o stat= -p 1234",
+        "Affiche seulement l'état du processus 1234 (le = supprime l'en-tête)."
+      ]
+    ],
+    "warning": "Un zombie ne se tue pas avec kill : il disparaît quand son parent lit son statut ou se termine. Un processus en état D bloque souvent à cause d'un disque ou d'un montage réseau défaillant."
+  },
+  {
+    "name": "pstree",
+    "category": "Processus",
+    "description": "Affiche les processus sous forme d'arbre : qui a lancé quoi.",
+    "options": [
+      [
+        "-p",
+        "Affiche aussi les PID."
+      ],
+      [
+        "-u",
+        "Affiche les utilisateurs quand ils changent."
+      ],
+      [
+        "-a",
+        "Affiche la ligne de commande complète."
+      ],
+      [
+        "-s",
+        "Montre les ancêtres d'un processus donné (de systemd jusqu'au processus)."
+      ],
+      [
+        "-l",
+        "Pas de troncature des lignes longues (utile en redirection ou sur petit écran)."
+      ]
+    ],
+    "examples": [
+      [
+        "pstree",
+        "Affiche l'arbre complet."
+      ],
+      [
+        "pstree -p",
+        "Arbre avec les PID."
+      ],
+      [
+        "pstree -p 1234",
+        "Arbre à partir du processus 1234."
+      ],
+      [
+        "pstree -ap $$",
+        "Arbre du shell courant, avec ses arguments."
+      ],
+      [
+        "pstree -pls 1234",
+        "Chaîne des parents de 1234 jusqu'à systemd, avec les PID, sans tronquer."
+      ],
+      [
+        "pstree -pls $$",
+        "Chaîne des parents du shell courant, avec les PID."
+      ],
+      [
+        "pstree -pls $PPID",
+        "Chaîne des parents du parent du shell."
+      ]
+    ],
+    "tip": "Sur Ubuntu, pstree fait partie du paquet psmisc. S'il manque : sudo apt install psmisc."
+  },
+  {
+    "name": "Démon (daemon)",
+    "category": "Processus",
+    "description": "Processus d'arrière-plan lancé au démarrage ou par un service, sans terminal rattaché. Il tourne en continu et répond à des requêtes.",
+    "options": [
+      [
+        "Nom en d",
+        "Convention fréquente : sshd, crond, rsyslogd, dockerd. Ce n'est pas une règle."
+      ],
+      [
+        "PPID 1",
+        "Parent souvent systemd (PID 1) : le démon a été détaché de son terminal."
+      ]
+    ],
+    "examples": [
+      [
+        "ps -eo pid,ppid,comm | grep sshd",
+        "Montre le PID et le parent du démon sshd."
+      ],
+      [
+        "ps -p 1 -o comm=",
+        "Affiche le nom du processus 1 (systemd sur Ubuntu)."
+      ]
+    ],
+    "warning": "Un démon n'a pas de terminal : Ctrl+C ne l'arrête pas. Utilise kill avec SIGTERM, ou la commande d'arrêt de ton gestionnaire de services."
+  },
+  {
+    "name": "kill",
+    "category": "Processus",
+    "description": "Envoie un signal à un processus (SIGTERM par défaut). Numéros donnés pour Linux x86 : kill -l affiche ceux de ta machine.",
+    "options": [
+      [
+        "1 · SIGHUP",
+        "Fin du terminal, ou relecture de la configuration selon le programme."
+      ],
+      [
+        "2 · SIGINT",
+        "Interruption demandée par Ctrl+C."
+      ],
+      [
+        "15 · SIGTERM",
+        "Demande d'arrêt propre (signal par défaut). Le programme peut le traiter ou l'ignorer."
+      ],
+      [
+        "9 · SIGKILL",
+        "Arrêt immédiat, impossible à intercepter. Dernier recours, sans nettoyage."
+      ],
+      [
+        "18 · SIGCONT",
+        "Reprend un processus suspendu."
+      ],
+      [
+        "19 · SIGSTOP",
+        "Suspend le processus. Impossible à ignorer."
+      ],
+      [
+        "20 · SIGTSTP",
+        "Suspension demandée par Ctrl+Z ; le programme peut la gérer."
+      ],
+      [
+        "-l",
+        "Liste tous les signaux de la machine."
+      ]
+    ],
+    "examples": [
+      [
+        "kill 1234",
+        "Envoie SIGTERM au processus 1234."
+      ],
+      [
+        "kill -TERM 1234",
+        "Envoie SIGTERM, comme ci-dessus, mais écrit en toutes lettres."
+      ],
+      [
+        "kill -HUP 1234",
+        "Demande au démon de relire sa configuration (si le programme le gère)."
+      ],
+      [
+        "kill -STOP 1234",
+        "Suspend le processus 1234."
+      ],
+      [
+        "kill -CONT 1234",
+        "Reprend le processus 1234."
+      ],
+      [
+        "kill -9 1234",
+        "Équivalent à kill -KILL : force l'arrêt, dernier recours."
+      ],
+      [
+        "kill -l",
+        "Liste les signaux disponibles."
+      ]
+    ],
+    "warning": "Vérifie toujours le PID avant d'envoyer un signal."
+  },
+  {
+    "name": "Arrêter, suspendre, relancer un processus",
+    "category": "Processus",
+    "description": "Procédure pas à pas : comment stopper un programme, le mettre en arrière-plan et le relancer.",
+    "options": [
+      [
+        "Ctrl+C",
+        "Arrête le programme au premier plan (SIGINT)."
+      ],
+      [
+        "Ctrl+Z",
+        "Suspend le programme au premier plan (SIGTSTP)."
+      ],
+      [
+        "commande &",
+        "Lance directement en arrière-plan."
+      ],
+      [
+        "kill PID",
+        "Demande un arrêt propre (SIGTERM)."
+      ],
+      [
+        "kill -9 PID",
+        "Force l'arrêt (SIGKILL) si rien d'autre ne marche."
+      ],
+      [
+        "Flèche haut",
+        "Rappelle la commande précédente de l'historique, pour la relancer."
+      ]
+    ],
+    "examples": [
+      [
+        "sleep 300",
+        "Test : Ctrl+C l'arrête, Ctrl+Z la suspend."
+      ],
+      [
+        "sleep 300 &",
+        "Lance en arrière-plan ; le prompt revient aussitôt."
+      ],
+      [
+        "jobs",
+        "Liste les jobs du shell courant."
+      ],
+      [
+        "kill %1",
+        "Arrête le job numéro 1 (numéro de job, pas PID)."
+      ],
+      [
+        "kill 1234",
+        "Arrête le processus de PID 1234."
+      ]
+    ],
+    "warning": "Ctrl+C n'agit pas sur un job en arrière-plan : utilise kill %n, ou fg pour le ramener au premier plan."
+  },
+  {
+    "name": "jobs",
+    "category": "Processus",
+    "description": "Liste les tâches (jobs) lancées depuis le shell courant, au premier plan ou en arrière-plan.",
+    "options": [
+      [
+        "-l",
+        "Affiche aussi le PID."
+      ],
+      [
+        "-p",
+        "Affiche seulement les PID."
+      ],
+      [
+        "%+ ou %%",
+        "Job courant (marqué +) : celui que fg et bg visent par défaut."
+      ],
+      [
+        "%-",
+        "Job précédent (marqué -)."
+      ],
+      [
+        "%n",
+        "Job numéro n, par exemple %1."
+      ]
+    ],
+    "examples": [
+      [
+        "jobs",
+        "Liste les jobs."
+      ],
+      [
+        "jobs -l",
+        "Liste avec les PID."
+      ],
+      [
+        "sleep 600 &",
+        "Crée un job : jobs l'affiche avec son numéro, comme [1]+."
+      ],
+      [
+        "kill %2",
+        "Arrête le job 2."
+      ]
+    ],
+    "tip": "Les jobs appartiennent au shell courant : à la fermeture du terminal, ils disparaissent (voir nohup)."
+  },
+  {
+    "name": "fg / bg",
+    "category": "Processus",
+    "description": "Ramène un job au premier plan (fg) ou le relance en arrière-plan (bg).",
+    "options": [
+      [
+        "fg",
+        "Met le job courant au premier plan."
+      ],
+      [
+        "fg %2",
+        "Met le job 2 au premier plan."
+      ],
+      [
+        "bg",
+        "Relance en arrière-plan le job courant suspendu."
+      ],
+      [
+        "bg %1",
+        "Relance en arrière-plan le job 1."
+      ],
+      [
+        "Ctrl+Z",
+        "Suspend le job au premier plan ; il devient arrêté."
+      ]
+    ],
+    "examples": [
+      [
+        "sleep 300",
+        "Puis Ctrl+Z : le job est suspendu."
+      ],
+      [
+        "bg",
+        "Le relance en arrière-plan : le prompt revient."
+      ],
+      [
+        "fg",
+        "Le ramène au premier plan ; Ctrl+C l'arrête."
+      ]
+    ],
+    "tip": "bg ne sert qu'à relancer un job suspendu. Un job lancé avec & tourne déjà en arrière-plan."
+  },
+  {
+    "name": "nohup",
+    "category": "Processus",
+    "description": "Lance une commande qui reste active même après la fermeture du terminal.",
+    "options": [
+      [
+        "nohup commande",
+        "Ignore SIGHUP : le programme survit à la fermeture du terminal."
+      ],
+      [
+        "> fichier",
+        "Redirige la sortie. Sans redirection, la sortie va dans nohup.out."
+      ],
+      [
+        "&",
+        "Lance en arrière-plan ; à combiner avec nohup."
+      ]
+    ],
+    "examples": [
+      [
+        "nohup ./script.sh &",
+        "Lance le script ; la sortie est écrite dans nohup.out."
+      ],
+      [
+        "nohup python3 serveur.py > serveur.log 2>&1 &",
+        "Lance le serveur, sortie et erreurs dans serveur.log."
+      ],
+      [
+        "ps -p 1234",
+        "Vérifie que le processus tourne toujours."
+      ]
+    ],
+    "tip": "nohup ne protège ni contre SIGKILL ni contre un redémarrage. Pour un service durable, préfère systemd."
+  },
+  {
+    "name": "sleep",
+    "category": "Processus",
+    "description": "Attend pendant une durée donnée, sans rien faire. Utile dans les scripts et pour tester les jobs.",
+    "options": [
+      [
+        "N",
+        "Durée en secondes."
+      ],
+      [
+        "Ns, Nm, Nh, Nd",
+        "Suffixes : secondes, minutes, heures, jours (GNU)."
+      ]
+    ],
+    "examples": [
+      [
+        "sleep 5",
+        "Attend 5 secondes."
+      ],
+      [
+        "sleep 2m",
+        "Attend 2 minutes."
+      ],
+      [
+        "sleep 10; echo fini",
+        "Affiche fini après 10 secondes."
+      ],
+      [
+        "sleep 1h &",
+        "Attend une heure en arrière-plan."
+      ]
+    ],
+    "tip": "Pour tester les jobs sans lancer de vrai travail, sleep 300 suffit."
+  },
+  {
+    "name": "nice",
+    "category": "Processus",
+    "description": "Lance une commande avec une priorité CPU modifiée. Plus la niceness est haute, moins le processus est prioritaire.",
+    "options": [
+      [
+        "-n N",
+        "Ajoute N à la niceness, de -20 (plus prioritaire) à 19 (moins prioritaire)."
+      ],
+      [
+        "-n -N",
+        "Diminue la niceness : réservé à root."
+      ],
+      [
+        "nice",
+        "Sans argument, affiche la niceness courante."
+      ]
+    ],
+    "examples": [
+      [
+        "nice -n 10 tar -czf sauvegarde.tar.gz dossier/",
+        "Compresse avec une priorité plus basse."
+      ],
+      [
+        "sudo nice -n -5 ./calcul",
+        "Donne une priorité plus haute (root)."
+      ],
+      [
+        "nice",
+        "Affiche la niceness du shell courant (0 par défaut)."
+      ]
+    ],
+    "tip": "Un utilisateur normal ne peut qu'augmenter la niceness, c'est-à-dire devenir moins prioritaire."
+  },
+  {
+    "name": "renice",
+    "category": "Processus",
+    "description": "Modifie la niceness d'un processus déjà lancé.",
+    "options": [
+      [
+        "-n N",
+        "Nouvelle niceness, de -20 à 19."
+      ],
+      [
+        "-p PID",
+        "Cible un processus."
+      ],
+      [
+        "-u USER",
+        "Cible tous les processus d'un utilisateur."
+      ]
+    ],
+    "examples": [
+      [
+        "renice -n 10 -p 1234",
+        "Rend le processus 1234 moins prioritaire."
+      ],
+      [
+        "sudo renice -n -5 -p 1234",
+        "Le rend plus prioritaire (root)."
+      ],
+      [
+        "renice -n 5 -u alice",
+        "Change la priorité de tous les processus d'alice."
+      ],
+      [
+        "ps -o pid,ni,comm -p 1234",
+        "Vérifie la niceness (colonne NI)."
+      ]
+    ],
+    "warning": "Une priorité trop haute sur un processus gourmand peut ralentir tout le système."
+  },
+  {
+    "name": "ip",
+    "category": "Réseau",
+    "description": "Inspecte et configure les interfaces et routes réseau.",
+    "options": [
+      [
+        "addr (ou ip a)",
+        "Affiche les adresses IP des interfaces."
+      ],
+      [
+        "link (ou ip l)",
+        "Affiche l'état des interfaces réseau."
+      ],
+      [
+        "route (ou ip r)",
+        "Affiche la table de routage."
+      ],
+      [
+        "neigh (ou ip n)",
+        "Affiche le cache de voisinage (table ARP / NDP)."
+      ]
+    ],
+    "examples": [
+      [
+        "ip addr show",
+        "Affiche les adresses IP."
+      ],
+      [
+        "ip a | grep 'inet' | grep 'scope global'",
+        "Affiche uniquement les adresses IP globales actives."
+      ],
+      [
+        "ip r | grep 'default'",
+        "Affiche la passerelle par défaut."
+      ],
+      [
+        "ip n",
+        "Affiche la table ARP (adresses IP et MAC voisines)."
+      ]
+    ]
+  },
+  {
+    "name": "ssh",
+    "category": "Réseau",
+    "description": "Ouvre une connexion distante sécurisée.",
+    "options": [
+      [
+        "-p PORT",
+        "Spécifie le port SSH."
+      ],
+      [
+        "-i FICHIER",
+        "Utilise une clé privée."
+      ],
+      [
+        "-v",
+        "Affiche les informations de diagnostic."
+      ]
+    ],
+    "examples": [
+      [
+        "ssh alice@serveur",
+        "Se connecte au serveur."
+      ],
+      [
+        "ssh -p 2222 alice@serveur",
+        "Utilise le port 2222."
+      ],
+      [
+        "ssh -i ~/.ssh/id_ed25519 alice@serveur",
+        "Utilise une clé privée."
+      ]
+    ]
+  },
+  {
+    "name": "Opérateurs shell",
+    "category": "Shell",
+    "description": "Combine des commandes et redirige leurs entrées ou sorties.",
+    "options": [
+      [
+        "&&",
+        "Exécute la commande suivante si la précédente réussit."
+      ],
+      [
+        "||",
+        "Exécute la suivante si la précédente échoue."
+      ],
+      [
+        "|",
+        "Transmet la sortie d'une commande à une autre."
+      ],
+      [
+        ">",
+        "Redirige la sortie standard vers un fichier."
+      ],
+      [
+        ">>",
+        "Ajoute la sortie standard à un fichier."
+      ],
+      [
+        "2>",
+        "Redirige la sortie d'erreur."
+      ],
+      [
+        "1> / 1>>",
+        "Équivalent explicite à > et >> (flux n°1 = sortie standard stdout)."
+      ],
+      [
+        "&> / &>>",
+        "Redirige à la fois stdout (1) et stderr (2) vers un fichier (syntaxe Bash)."
+      ]
+    ],
+    "examples": [
+      [
+        "ls | grep txt",
+        "Recherche txt dans la sortie de ls."
+      ],
+      [
+        "echo bonjour > fichier.txt",
+        "Écrit dans un fichier en remplaçant son contenu."
+      ],
+      [
+        "echo bonjour >> fichier.txt",
+        "Ajoute du texte à la fin du fichier."
+      ],
+      [
+        "commande 2> erreurs.log",
+        "Enregistre les erreurs."
+      ],
+      [
+        "find / -name x 2>/dev/null",
+        "Jette les erreurs (/dev/null est un « trou noir ») ; seuls les résultats s'affichent."
+      ],
+      [
+        "commande > sortie.txt 2>&1",
+        "Envoie la sortie ET les erreurs dans le même fichier. L'ordre compte : > d'abord, puis 2>&1."
+      ],
+      [
+        "ls /home/ /test/ 2>~/erreur.log 1>~/dernier.log",
+        "Sépare les erreurs dans erreur.log et la sortie normale dans dernier.log."
+      ],
+      [
+        "ls /home/ /test/ 2>~/erreur.log | tee ~/dernier.log 1>>~/cumul.log",
+        "Enregistre la sortie dans dernier.log ET l'ajoute à cumul.log."
+      ],
+      [
+        "cat fichier &> /dev/null",
+        "Ignore complètement la sortie normale et les erreurs (utile dans un if)."
+      ]
+    ]
+  },
+  {
+    "name": "Méta-caractères : * ? [ ] { } ~",
+    "category": "Shell",
+    "description": "Motifs que le shell remplace par des noms de fichiers ou des chemins avant de lancer la commande.",
+    "tables": [
+      {
+        "caption": "Motifs courants. Ils sont interprétés par le shell, pas par la commande : ils fonctionnent avec ls, cp, rm, etc.",
+        "headers": [
+          "Motif",
+          "Sens",
+          "Exemple"
+        ],
+        "rows": [
+          [
+            "*",
+            "N'importe quelle suite de caractères, y compris vide",
+            "*.log"
+          ],
+          [
+            "?",
+            "Exactement un caractère",
+            "f?.txt"
+          ],
+          [
+            "[abc]",
+            "Un caractère parmi ceux listés",
+            "[ab]*"
+          ],
+          [
+            "[a-z]",
+            "Un caractère d'un intervalle",
+            "[0-9].jpg"
+          ],
+          [
+            "[!abc]",
+            "Un caractère qui n'est pas dans la liste",
+            "[!a]*"
+          ],
+          [
+            "{a,b}",
+            "Expansion en plusieurs mots (Bash, zsh ; pas sh ni dash)",
+            "x.{c,h}"
+          ],
+          [
+            "~",
+            "Répertoire personnel",
+            "~/notes"
+          ]
+        ]
+      }
+    ],
+    "options": [],
+    "examples": [
+      [
+        "ls *.txt",
+        "Liste les fichiers dont le nom se termine par .txt."
+      ],
+      [
+        "ls image?.png",
+        "Remplace un seul caractère : image1.png, imageA.png…"
+      ],
+      [
+        "ls [a-c]*",
+        "Liste les noms commençant par a, b ou c."
+      ],
+      [
+        "echo *",
+        "Affiche les noms du dossier : le shell remplace * avant echo."
+      ],
+      [
+        "echo '*'",
+        "Les guillemets empêchent le remplacement : affiche *."
+      ],
+      [
+        "cp fichier.{txt,bak}",
+        "Équivaut à cp fichier.txt fichier.bak (Bash, zsh)."
+      ],
+      [
+        "touch log_{1..3}.txt",
+        "Crée log_1.txt, log_2.txt et log_3.txt (Bash, zsh)."
+      ],
+      [
+        "ls ~/projets",
+        "~ est remplacé par le répertoire personnel."
+      ]
+    ],
+    "warning": "Avant rm *.tmp, teste le motif avec echo *.tmp : c'est ce que la commande recevra réellement. * ne correspond pas aux fichiers cachés (nom commençant par un point), comme .bashrc."
+  },
+  {
+    "name": "pwd",
+    "category": "Fichiers",
+    "description": "Affiche le chemin du répertoire courant.",
+    "options": [],
+    "examples": [
+      [
+        "pwd",
+        "Affiche le chemin absolu du dossier actuel."
+      ]
+    ]
+  },
+  {
+    "name": "mkdir",
+    "category": "Fichiers",
+    "description": "Crée un ou plusieurs répertoires.",
+    "options": [
+      [
+        "-p",
+        "Crée aussi les répertoires parents manquants."
+      ],
+      [
+        "-v",
+        "Affiche les répertoires créés."
+      ]
+    ],
+    "examples": [
+      [
+        "mkdir projets",
+        "Crée le dossier projets."
+      ],
+      [
+        "mkdir -p site/images",
+        "Crée toute l'arborescence manquante."
+      ]
+    ]
+  },
+  {
+    "name": "touch",
+    "category": "Fichiers",
+    "description": "Crée un fichier vide ou modifie ses horodatages (dates d'accès et de modification).",
+    "options": [
+      [
+        "-m",
+        "Modifie uniquement la date de dernière modification."
+      ],
+      [
+        "-a",
+        "Modifie uniquement la date de dernier accès."
+      ],
+      [
+        "-d DATE",
+        "Fixe une date précise (ex : \"2023-07-14 10:15:00\")."
+      ]
+    ],
+    "examples": [
+      [
+        "touch notes.txt",
+        "Crée notes.txt s'il n'existe pas, ou actualise sa date."
+      ],
+      [
+        "touch -m -d \"2023-07-14 10:15:00\" fic.old",
+        "Fixe la date de modification au 14 juillet 2023 à 10h15."
+      ]
+    ]
+  },
+  {
+    "name": "cat",
+    "category": "Fichiers",
+    "description": "Affiche ou concatène le contenu de fichiers.",
+    "options": [
+      [
+        "-n",
+        "Numérote les lignes affichées."
+      ]
+    ],
+    "examples": [
+      [
+        "cat notes.txt",
+        "Affiche le fichier."
+      ],
+      [
+        "cat a.txt b.txt",
+        "Affiche les deux fichiers à la suite."
+      ]
+    ]
+  },
+  {
+    "name": "less",
+    "category": "Fichiers",
+    "description": "Consulte un fichier page par page.",
+    "options": [],
+    "examples": [
+      [
+        "less /var/log/syslog",
+        "Parcourt le fichier ; q permet de quitter."
+      ]
+    ]
+  },
+  {
+    "name": "df",
+    "category": "Système",
+    "description": "Affiche l'espace disponible sur les systèmes de fichiers.",
+    "options": [
+      [
+        "-h",
+        "Affiche les tailles dans un format lisible."
+      ]
+    ],
+    "examples": [
+      [
+        "df -h",
+        "Affiche l'espace disque disponible."
+      ]
+    ]
+  },
+  {
+    "name": "du",
+    "category": "Système",
+    "description": "Estime l'espace occupé par des fichiers et répertoires.",
+    "options": [
+      [
+        "-h",
+        "Tailles lisibles."
+      ],
+      [
+        "-s",
+        "Affiche seulement le total."
+      ]
+    ],
+    "examples": [
+      [
+        "du -sh dossier/",
+        "Affiche la taille totale du dossier."
+      ]
+    ]
+  },
+  {
+    "name": "free",
+    "category": "Système",
+    "description": "Affiche l'utilisation de la mémoire.",
+    "options": [
+      [
+        "-h",
+        "Affiche les valeurs en unités lisibles."
+      ]
+    ],
+    "examples": [
+      [
+        "free -h",
+        "Affiche la mémoire RAM et la mémoire d'échange."
+      ]
+    ]
+  },
+  {
+    "name": "man",
+    "category": "Système",
+    "description": "Ouvre le manuel d'une commande.",
+    "options": [],
+    "examples": [
+      [
+        "man ls",
+        "Consulte le manuel de ls."
+      ],
+      [
+        "man chmod",
+        "Consulte la documentation de chmod."
+      ]
+    ]
+  },
+  {
+    "name": "sudo",
+    "category": "Système",
+    "description": "Exécute une commande avec les privilèges d'un autre utilisateur, souvent root.",
+    "options": [],
+    "examples": [
+      [
+        "sudo apt update",
+        "Actualise l'index des paquets sur Debian/Ubuntu."
+      ]
+    ],
+    "warning": "Vérifie la commande avant de l'exécuter avec des privilèges élevés."
+  },
+  {
+    "name": "head",
+    "category": "Texte",
+    "description": "Affiche le début d'un fichier (10 lignes par défaut).",
+    "options": [
+      [
+        "-n N",
+        "Affiche les N premières lignes."
+      ],
+      [
+        "-c N",
+        "Affiche les N premiers octets."
+      ]
+    ],
+    "examples": [
+      [
+        "head fichier.txt",
+        "Affiche les 10 premières lignes."
+      ],
+      [
+        "head -n 5 fichier.txt",
+        "Affiche les 5 premières lignes."
+      ],
+      [
+        "head -n -3 fichier.txt",
+        "Affiche tout sauf les 3 dernières lignes (GNU)."
+      ]
+    ]
+  },
+  {
+    "name": "tail",
+    "category": "Texte",
+    "description": "Affiche la fin d'un fichier (10 lignes par défaut).",
+    "options": [
+      [
+        "-n N",
+        "Affiche les N dernières lignes."
+      ],
+      [
+        "-n +N",
+        "Commence à partir de la ligne N."
+      ],
+      [
+        "-f",
+        "Suit les ajouts en direct, utile pour les journaux."
+      ]
+    ],
+    "examples": [
+      [
+        "tail /var/log/syslog",
+        "Affiche les 10 dernières lignes."
+      ],
+      [
+        "tail -n 50 app.log",
+        "Affiche les 50 dernières lignes."
+      ],
+      [
+        "tail -f /var/log/syslog",
+        "Suit le fichier en direct ; Ctrl+C arrête."
+      ]
+    ]
+  },
+  {
+    "name": "wc",
+    "category": "Texte",
+    "description": "Compte les lignes, mots et octets.",
+    "options": [
+      [
+        "-l",
+        "Compte les lignes."
+      ],
+      [
+        "-w",
+        "Compte les mots."
+      ],
+      [
+        "-c",
+        "Compte les octets."
+      ]
+    ],
+    "examples": [
+      [
+        "wc -l fichier.txt",
+        "Affiche le nombre de lignes."
+      ],
+      [
+        "ls | wc -l",
+        "Compte les entrées du dossier courant."
+      ]
+    ]
+  },
+  {
+    "name": "sort",
+    "category": "Texte",
+    "description": "Trie les lignes d'un texte.",
+    "options": [
+      [
+        "-n",
+        "Tri numérique."
+      ],
+      [
+        "-r",
+        "Ordre inverse."
+      ],
+      [
+        "-h",
+        "Tri des tailles lisibles (1K, 2M)."
+      ],
+      [
+        "-t X",
+        "Délimiteur de colonnes : X remplace l'espace par défaut."
+      ],
+      [
+        "-k D,F",
+        "Trie de la colonne D à la colonne F. -k2,2 = seulement la colonne 2 ; -k2 = de la colonne 2 jusqu'à la fin."
+      ],
+      [
+        "-k D,Fn",
+        "Suffixe n (numérique), r (inverse) ou f (sans casse) propre à cette clé, par exemple -k3,3nr."
+      ],
+      [
+        "-u",
+        "Supprime les doublons."
+      ]
+    ],
+    "examples": [
+      [
+        "sort noms.txt",
+        "Trie alphabétiquement."
+      ],
+      [
+        "sort -n nombres.txt",
+        "Trie numériquement."
+      ],
+      [
+        "du -sh * | sort -h",
+        "Trie les dossiers par taille."
+      ],
+      [
+        "sort -t, -k2,2 données.csv",
+        "Trie les lignes CSV selon la colonne 2 seulement."
+      ],
+      [
+        "sort -t: -k3,3n /etc/passwd",
+        "Trie par UID (colonne 3 de /etc/passwd), numériquement."
+      ],
+      [
+        "sort -t, -k2,2 -k1,1 données.csv",
+        "Trie par colonne 2, puis départage les égalités par la colonne 1."
+      ],
+      [
+        "sort -t, -k3,3nr ventes.csv",
+        "Colonne 3 en numérique, ordre inverse (plus grand en premier)."
+      ],
+      [
+        "sort -t, -k2 données.csv",
+        "Trie à partir de la colonne 2 jusqu'à la fin de la ligne."
+      ],
+      [
+        "sort -t $'\\t' -k2,2 fichier.tsv",
+        "Délimiteur tabulation (syntaxe Bash)."
+      ]
+    ],
+    "warning": "-t sert à choisir le délimiteur, -k à choisir la colonne. Sans -k, toute la ligne est comparée. Sans -t, les colonnes sont séparées par des espaces, et les espaces en début de ligne comptent."
+  },
+  {
+    "name": "uniq",
+    "category": "Texte",
+    "description": "Supprime ou compte les lignes identiques consécutives.",
+    "options": [
+      [
+        "-c",
+        "Compte les occurrences."
+      ],
+      [
+        "-d",
+        "Affiche seulement les doublons."
+      ],
+      [
+        "-u",
+        "Affiche seulement les lignes uniques."
+      ]
+    ],
+    "examples": [
+      [
+        "sort liste.txt | uniq",
+        "Supprime les doublons."
+      ],
+      [
+        "sort liste.txt | uniq -c | sort -rn",
+        "Compte les occurrences, du plus fréquent au moins fréquent."
+      ]
+    ],
+    "tip": "uniq ne compare que les lignes voisines : trie d'abord avec sort."
+  },
+  {
+    "name": "cut",
+    "category": "Texte",
+    "description": "Extrait des colonnes ou des caractères de chaque ligne.",
+    "options": [
+      [
+        "-d X",
+        "Utilise X comme séparateur de colonnes."
+      ],
+      [
+        "-f N",
+        "Sélectionne le champ N."
+      ],
+      [
+        "-c N-M",
+        "Sélectionne les caractères N à M."
+      ]
+    ],
+    "examples": [
+      [
+        "cut -d: -f1 /etc/passwd",
+        "Affiche les noms d'utilisateurs."
+      ],
+      [
+        "cut -c1-10 fichier.txt",
+        "Garde les 10 premiers caractères de chaque ligne."
+      ]
+    ]
+  },
+  {
+    "name": "tr",
+    "category": "Texte",
+    "description": "Remplace ou supprime des caractères.",
+    "options": [
+      [
+        "-d",
+        "Supprime les caractères indiqués."
+      ],
+      [
+        "-s",
+        "Réduit les répétitions."
+      ]
+    ],
+    "examples": [
+      [
+        "tr a-z A-Z < fichier.txt",
+        "Convertit en majuscules."
+      ],
+      [
+        "tr -d '\\r' < windows.txt > unix.txt",
+        "Supprime les retours chariot Windows."
+      ]
+    ]
+  },
+  {
+    "name": "diff",
+    "category": "Texte",
+    "description": "Compare deux fichiers ou dossiers.",
+    "options": [
+      [
+        "-u",
+        "Affiche les différences au format unifié."
+      ],
+      [
+        "-r",
+        "Compare les dossiers récursivement."
+      ]
+    ],
+    "examples": [
+      [
+        "diff a.txt b.txt",
+        "Affiche les lignes qui diffèrent."
+      ],
+      [
+        "diff -u ancien.conf nouveau.conf",
+        "Compare deux configurations en format lisible."
+      ]
+    ]
+  },
+  {
+    "name": "tee",
+    "category": "Texte",
+    "description": "Affiche une sortie et l'écrit aussi dans un fichier.",
+    "options": [
+      [
+        "-a",
+        "Ajoute à la fin du fichier au lieu de remplacer."
+      ]
+    ],
+    "examples": [
+      [
+        "ls -l | tee liste.txt",
+        "Affiche la liste et l'enregistre."
+      ],
+      [
+        "ls | tee -a journal.txt",
+        "Ajoute la liste au journal."
+      ]
+    ]
+  },
+  {
+    "name": "echo",
+    "category": "Shell",
+    "description": "Affiche du texte ou la valeur d'une variable.",
+    "options": [
+      [
+        "-n",
+        "N'ajoute pas de saut de ligne final."
+      ],
+      [
+        "-e",
+        "Interprète les séquences comme \\n."
+      ]
+    ],
+    "examples": [
+      [
+        "echo \"Bonjour\"",
+        "Affiche Bonjour."
+      ],
+      [
+        "echo $HOME",
+        "Affiche le répertoire personnel."
+      ],
+      [
+        "echo -n \"Pas de saut\"",
+        "Affiche sans passer à la ligne."
+      ]
+    ]
+  },
+  {
+    "name": "file",
+    "category": "Fichiers",
+    "description": "Devine le type réel d'un fichier à partir de son contenu.",
+    "options": [
+      [
+        "-b",
+        "Affiche seulement le type, sans le nom du fichier."
+      ]
+    ],
+    "examples": [
+      [
+        "file image.png",
+        "Affiche le type du fichier."
+      ],
+      [
+        "file -b script",
+        "Affiche le type sans le nom."
+      ]
+    ]
+  },
+  {
+    "name": "stat",
+    "category": "Fichiers",
+    "description": "Affiche les détails d'un fichier : taille, droits, dates.",
+    "options": [],
+    "examples": [
+      [
+        "stat fichier.txt",
+        "Affiche taille, droits, propriétaire et dates."
+      ]
+    ]
+  },
+  {
+    "name": "ln",
+    "category": "Fichiers",
+    "description": "Crée un lien vers un fichier ou un dossier.",
+    "options": [
+      [
+        "-s",
+        "Crée un lien symbolique (raccourci)."
+      ],
+      [
+        "-f",
+        "Remplace le lien existant."
+      ]
+    ],
+    "examples": [
+      [
+        "ln -s /chemin/cible lien",
+        "Crée un lien symbolique nommé lien."
+      ],
+      [
+        "ln -s hosts1 hosts.lnk",
+        "Crée un lien symbolique relatif vers hosts1."
+      ],
+      [
+        "ln fichier.txt copie_liee.txt",
+        "Crée un lien physique vers le même contenu."
+      ]
+    ],
+    "tip": "L'ordre compte : ln -s CIBLE LIEN. Si la cible est supprimée (rm), le lien symbolique devient cassé. Par défaut, cp lien copie le contenu du fichier cible."
+  },
+  {
+    "name": "tar",
+    "category": "Archives",
+    "description": "Crée, liste ou extrait des archives. tar ne fait que regrouper les fichiers : l'option de compression choisit le format (gzip, bzip2, xz, zstd).",
+    "options": [
+      [
+        "-c",
+        "Crée une archive."
+      ],
+      [
+        "-x",
+        "Extrait une archive."
+      ],
+      [
+        "-t",
+        "Liste le contenu."
+      ],
+      [
+        "-f FICHIER",
+        "Indique le fichier d'archive. Dans un groupe comme -czf, f doit être en dernier, suivi du nom du fichier."
+      ],
+      [
+        "-v",
+        "Affiche les fichiers traités."
+      ],
+      [
+        "-z",
+        "gzip : .tar.gz ou .tgz. Le plus rapide, usage le plus courant."
+      ],
+      [
+        "-j",
+        "bzip2 : .tar.bz2 ou .tbz2. Compression plus forte que gzip, mais plus lente."
+      ],
+      [
+        "-J",
+        "xz : .tar.xz. Compression la plus forte, mais la plus lente."
+      ],
+      [
+        "--zstd",
+        "zstd : .tar.zst. Rapide et efficace ; nécessite le paquet zstd."
+      ],
+      [
+        "-a",
+        "À la création, choisit la compression d'après l'extension du nom (GNU tar)."
+      ],
+      [
+        "-C DOSSIER",
+        "Extrait ou crée dans DOSSIER au lieu du dossier courant. Le dossier doit exister."
+      ]
+    ],
+    "examples": [
+      [
+        "tar -czf archive.tar.gz dossier/",
+        "Crée une archive gzip."
+      ],
+      [
+        "tar -cjf archive.tar.bz2 dossier/",
+        "Crée une archive bzip2."
+      ],
+      [
+        "tar -cJf archive.tar.xz dossier/",
+        "Crée une archive xz."
+      ],
+      [
+        "tar --zstd -cf archive.tar.zst dossier/",
+        "Crée une archive zstd."
+      ],
+      [
+        "tar -caf archive.tar.xz dossier/",
+        "-a lit l'extension .xz et choisit xz tout seul."
+      ],
+      [
+        "tar -tzf archive.tar.gz",
+        "Liste le contenu d'une archive gzip sans extraire."
+      ],
+      [
+        "tar -tJf archive.tar.xz",
+        "Liste le contenu d'une archive xz."
+      ],
+      [
+        "tar -xzf archive.tar.gz",
+        "Extrait une archive gzip dans le dossier courant."
+      ],
+      [
+        "tar -xf archive.tar.bz2",
+        "Extrait sans -j : GNU tar détecte la compression à l'extraction."
+      ],
+      [
+        "mkdir -p /tmp/test && tar -xf archive.tar.xz -C /tmp/test",
+        "Crée le dossier /tmp/test puis y extrait l'archive."
+      ],
+      [
+        "ls -lh archive.tar.*",
+        "Compare la taille des archives créées dans différents formats."
+      ],
+      [
+        "tar -xf /tmp/sauvETC_stag.tar -C /tmp/recup/ etc/services",
+        "Extrait uniquement le fichier etc/services de l'archive vers /tmp/recup/ (le chemin interne n'a pas de / initial)."
+      ]
+    ],
+    "warning": "Liste le contenu avec -t avant d'extraire une archive inconnue : elle peut contenir des chemins absolus ou écraser des fichiers existants.",
+    "tip": "gzip : le plus rapide. xz : le plus petit, mais lent. bzip2 : entre les deux. --zstd nécessite le paquet zstd : sudo apt install zstd."
+  },
+  {
+    "name": "date",
+    "category": "Système",
+    "description": "Affiche ou formate la date et l'heure.",
+    "options": [
+      [
+        "+FORMAT",
+        "Choisit le format d'affichage, par exemple +%F."
+      ]
+    ],
+    "examples": [
+      [
+        "date",
+        "Affiche la date et l'heure actuelles."
+      ],
+      [
+        "date +%F",
+        "Affiche la date au format AAAA-MM-JJ."
+      ],
+      [
+        "date +%H:%M:%S",
+        "Affiche l'heure seule."
+      ]
+    ]
+  },
+  {
+    "name": "uname",
+    "category": "Système",
+    "description": "Affiche des informations sur le système.",
+    "options": [
+      [
+        "-a",
+        "Affiche toutes les informations."
+      ],
+      [
+        "-r",
+        "Affiche la version du noyau."
+      ]
+    ],
+    "examples": [
+      [
+        "uname -a",
+        "Affiche le noyau et l'architecture."
+      ],
+      [
+        "uname -r",
+        "Affiche la version du noyau."
+      ]
+    ]
+  },
+  {
+    "name": "whoami",
+    "category": "Système",
+    "description": "Affiche le nom de l'utilisateur courant.",
+    "options": [],
+    "examples": [
+      [
+        "whoami",
+        "Affiche ton nom d'utilisateur."
+      ]
+    ]
+  },
+  {
+    "name": "top",
+    "category": "Processus",
+    "description": "Affiche en continu les processus les plus gourmands.",
+    "options": [
+      [
+        "q",
+        "Quitte."
+      ],
+      [
+        "P",
+        "Trie par CPU."
+      ],
+      [
+        "M",
+        "Trie par mémoire."
+      ]
+    ],
+    "examples": [
+      [
+        "top",
+        "Ouvre le moniteur ; q pour quitter."
+      ]
+    ],
+    "tip": "htop, s'il est installé, offre une interface plus lisible."
+  },
+  {
+    "name": "htop",
+    "category": "Processus",
+    "description": "Moniteur interactif des processus : tri, arbre, arrêt et priorité en quelques touches.",
+    "options": [
+      [
+        "F6",
+        "Choisit la colonne de tri."
+      ],
+      [
+        "F5 ou t",
+        "Affiche les processus en arbre."
+      ],
+      [
+        "F9 ou k",
+        "Envoie un signal au processus sélectionné (menu)."
+      ],
+      [
+        "F7 / F8",
+        "Diminue / augmente la niceness."
+      ],
+      [
+        "F3 ou /",
+        "Recherche un nom de processus."
+      ],
+      [
+        "u",
+        "Filtre par utilisateur."
+      ],
+      [
+        "F10 ou q",
+        "Quitte."
+      ]
+    ],
+    "examples": [
+      [
+        "htop",
+        "Ouvre le moniteur."
+      ],
+      [
+        "htop -u alice",
+        "Affiche seulement les processus d'alice."
+      ],
+      [
+        "htop -p 1234,5678",
+        "Surveille les processus 1234 et 5678."
+      ],
+      [
+        "sudo apt install htop",
+        "Installe htop sur Ubuntu ou Debian."
+      ]
+    ],
+    "tip": "Les colonnes S (état) et NI (niceness) reprennent les notions des cartes ps -elf et États des processus."
+  },
+  {
+    "name": "apt",
+    "category": "Système",
+    "description": "Gère les paquets sur Debian et Ubuntu.",
+    "options": [
+      [
+        "update",
+        "Actualise la liste des paquets disponibles."
+      ],
+      [
+        "upgrade",
+        "Met à jour les paquets installés."
+      ],
+      [
+        "install PAQUET",
+        "Installe un paquet."
+      ],
+      [
+        "remove PAQUET",
+        "Désinstalle un paquet."
+      ]
+    ],
+    "examples": [
+      [
+        "sudo apt update",
+        "Actualise l'index."
+      ],
+      [
+        "sudo apt install htop",
+        "Installe htop."
+      ]
+    ],
+    "tip": "Sur Fedora, la commande équivalente est dnf ; sur Arch Linux, pacman."
+  },
+  {
+    "name": "chown",
+    "category": "Permissions",
+    "description": "Change le propriétaire ou le groupe d'un fichier.",
+    "options": [
+      [
+        "-R",
+        "Applique récursivement."
+      ],
+      [
+        "UTILISATEUR:GROUPE",
+        "Change les deux à la fois."
+      ]
+    ],
+    "examples": [
+      [
+        "sudo chown alice fichier.txt",
+        "Donne le fichier à alice."
+      ],
+      [
+        "sudo chown -R alice:devs projet/",
+        "Change propriétaire et groupe de tout le dossier."
+      ]
+    ]
+  },
+  {
+    "name": "ping",
+    "category": "Réseau",
+    "description": "Teste si une machine répond et mesure la latence.",
+    "options": [
+      [
+        "-c N",
+        "Envoie N paquets puis s'arrête."
+      ]
+    ],
+    "examples": [
+      [
+        "ping -c 4 example.com",
+        "Envoie 4 requêtes."
+      ]
+    ],
+    "tip": "Certains pare-feu bloquent ping : une absence de réponse ne prouve pas que la machine est éteinte."
+  },
+  {
+    "name": "ss",
+    "category": "Réseau",
+    "description": "Affiche les sockets et les ports ouverts.",
+    "options": [
+      [
+        "-t",
+        "TCP."
+      ],
+      [
+        "-u",
+        "UDP."
+      ],
+      [
+        "-l",
+        "Connexions en écoute."
+      ],
+      [
+        "-n",
+        "Ports en numérique."
+      ],
+      [
+        "-p",
+        "Processus associé."
+      ]
+    ],
+    "examples": [
+      [
+        "ss -tlnp",
+        "Affiche les ports TCP en écoute avec leur processus."
+      ],
+      [
+        "ss -tn",
+        "Affiche les connexions TCP établies."
+      ]
+    ],
+    "tip": "ss remplace netstat, souvent absent des installations récentes."
+  },
+  {
+    "name": "history",
+    "category": "Shell",
+    "description": "Affiche l'historique des commandes.",
+    "options": [
+      [
+        "!N",
+        "Relance la commande numéro N."
+      ],
+      [
+        "Ctrl+R",
+        "Recherche dans l'historique."
+      ]
+    ],
+    "examples": [
+      [
+        "history | tail",
+        "Affiche les 10 dernières commandes."
+      ],
+      [
+        "history | grep ssh",
+        "Cherche les commandes contenant ssh."
+      ]
+    ]
+  },
+  {
+    "name": "alias",
+    "category": "Shell",
+    "description": "Crée un raccourci pour une commande.",
+    "options": [],
+    "examples": [
+      [
+        "alias ll='ls -lh'",
+        "Crée le raccourci ll pour la session courante."
+      ]
+    ],
+    "tip": "Pour le rendre permanent, ajoute la ligne dans ~/.bashrc. Vérifie avec type ll."
+  },
+  {
+    "name": "env",
+    "category": "Shell",
+    "description": "Affiche les variables d'environnement.",
+    "options": [],
+    "examples": [
+      [
+        "env",
+        "Affiche toutes les variables."
+      ],
+      [
+        "env | grep PATH",
+        "Affiche la variable PATH."
+      ]
+    ]
+  },
+  {
+    "name": "Variables : set, env, export",
+    "category": "Shell",
+    "description": "Une variable créée dans le shell reste dans le shell. Pour qu'un programme lancé par le shell la reçoive, il faut l'exporter avec export. set liste tout, env ne liste que les variables exportées.",
+    "options": [
+      [
+        "VAR=valeur",
+        "Crée une variable du shell, locale : les programmes lancés ne la voient pas."
+      ],
+      [
+        "export VAR",
+        "Exporte une variable existante : elle est transmise aux processus enfants."
+      ],
+      [
+        "export VAR=valeur",
+        "Crée et exporte en une seule ligne."
+      ],
+      [
+        "set",
+        "Affiche toutes les variables du shell, exportées ou non, et les fonctions (Bash)."
+      ],
+      [
+        "env",
+        "Affiche seulement les variables exportées, celles que reçoivent les programmes lancés."
+      ],
+      [
+        "env VAR=valeur commande",
+        "Donne une valeur à VAR pour cette seule commande, sans rien changer au shell."
+      ],
+      [
+        "set -a",
+        "Exporte automatiquement les variables créées ensuite, jusqu'à set +a."
+      ],
+      [
+        "unset VAR",
+        "Supprime la variable."
+      ]
+    ],
+    "examples": [
+      [
+        "MAVAR=bonjour; bash -c 'echo $MAVAR'",
+        "Affiche une ligne vide : MAVAR n'est pas exportée, le processus enfant ne la voit pas."
+      ],
+      [
+        "export MAVAR=bonjour; bash -c 'echo $MAVAR'",
+        "Affiche bonjour : l'enfant reçoit la variable."
+      ],
+      [
+        "echo $MAVAR",
+        "Affiche la valeur dans le shell courant, exportée ou non."
+      ],
+      [
+        "set | grep '^MAVAR='",
+        "Retrouve MAVAR dans la liste complète de set."
+      ],
+      [
+        "env | grep '^MAVAR='",
+        "Ne l'affiche que si elle est exportée."
+      ],
+      [
+        "env MAVAR=autre bash -c 'echo $MAVAR'",
+        "Affiche autre pour cette seule commande ; MAVAR garde sa valeur dans le shell."
+      ],
+      [
+        "printenv MAVAR",
+        "Affiche la valeur d'une variable exportée (sans rien si elle ne l'est pas)."
+      ],
+      [
+        "export PATH=$PATH:~/bin",
+        "Ajoute ~/bin au PATH pour cette session. Pour le garder, ajoute la ligne dans ~/.bashrc."
+      ],
+      [
+        "unset MAVAR",
+        "Supprime MAVAR du shell courant."
+      ]
+    ],
+    "warning": "Un processus enfant reçoit une copie des variables exportées : il peut la modifier, mais la variable du parent ne change pas.",
+    "tip": "Pas d'espace autour du = : X = 1 ne fonctionne pas. Les noms en majuscules sont une convention, pas une obligation."
+  },
+  {
+    "name": "crontab",
+    "category": "Planification",
+    "description": "Planifie des commandes répétées. Chaque ligne d'une crontab donne cinq champs (minute, heure, jour du mois, mois, jour de la semaine), puis la commande.",
+    "options": [
+      [
+        "-l",
+        "Affiche la crontab de l'utilisateur. Ne modifie rien."
+      ],
+      [
+        "-e",
+        "Ouvre la crontab dans l'éditeur ($VISUAL ou $EDITOR) pour ajouter ou modifier des lignes."
+      ],
+      [
+        "-r",
+        "Supprime toute la crontab d'un coup. Pas de confirmation sur la plupart des systèmes."
+      ],
+      [
+        "-i",
+        "Demande confirmation avant la suppression (avec -r). Disponible sur Debian et Ubuntu."
+      ],
+      [
+        "-u UTILISATEUR",
+        "Agit sur la crontab d'un autre utilisateur. Réservé à root : sudo crontab -u alice -l."
+      ]
+    ],
+    "examples": [
+      [
+        "crontab -l",
+        "Affiche tes tâches planifiées."
+      ],
+      [
+        "crontab -e",
+        "Ouvre l'éditeur pour ajouter une ligne."
+      ],
+      [
+        "crontab -l > sauvegarde-cron.txt",
+        "Sauvegarde la crontab avant toute modification."
+      ],
+      [
+        "crontab -i -r",
+        "Supprime la crontab après confirmation (Debian et Ubuntu)."
+      ],
+      [
+        "sudo crontab -l",
+        "Affiche la crontab de root."
+      ],
+      [
+        "crontab sauvegarde-cron.txt",
+        "Remplace toute la crontab par ce fichier. Vérifie son contenu avant."
+      ]
+    ],
+    "warning": "Attention : -e et -r sont voisins, une seule lettre les sépare. crontab -r supprime toutes les tâches, sans annulation possible. Avant toute modification, fais une sauvegarde avec crontab -l > fichier, et préfère crontab -i -r."
+  },
+  {
+    "name": "Crontab : périodicité (minutes, heures, jours, mois)",
+    "category": "Planification",
+    "description": "Cinq champs à gauche de la commande. Chaque champ accepte une valeur, une liste, une plage ou un intervalle.",
+    "options": [],
+    "tables": [
+      {
+        "caption": "Les cinq champs",
+        "headers": [
+          "Champ",
+          "Valeurs",
+          "Exemple"
+        ],
+        "rows": [
+          [
+            "Minute",
+            "0 à 59",
+            "30 : à la 30e minute de l'heure"
+          ],
+          [
+            "Heure",
+            "0 à 23 (format 24 h)",
+            "8 : 8 h du matin ; 18 : 18 h"
+          ],
+          [
+            "Jour du mois",
+            "1 à 31",
+            "15 : le 15 de chaque mois"
+          ],
+          [
+            "Mois",
+            "1 à 12, ou jan à dec",
+            "3 : mars"
+          ],
+          [
+            "Jour de la semaine",
+            "0 à 7 (0 et 7 = dimanche, 1 = lundi)",
+            "1-5 : du lundi au vendredi"
+          ]
+        ]
+      },
+      {
+        "caption": "Notations",
+        "headers": [
+          "Notation",
+          "Signification",
+          "Exemple"
+        ],
+        "rows": [
+          [
+            "*",
+            "Toutes les valeurs du champ",
+            "* * * * * : chaque minute"
+          ],
+          [
+            "5",
+            "Une seule valeur",
+            "5 dans le champ minute : à la 5e minute"
+          ],
+          [
+            "1,3,5",
+            "Liste de valeurs",
+            "8,12,18 dans le champ heure : 8 h, 12 h et 18 h"
+          ],
+          [
+            "1-5",
+            "Plage de valeurs",
+            "1-5 dans le champ jour de la semaine : lundi à vendredi"
+          ],
+          [
+            "*/15",
+            "Intervalle : toutes les 15 unités",
+            "*/15 dans le champ minute : 0, 15, 30 et 45"
+          ],
+          [
+            "10-40/10",
+            "Plage avec pas",
+            "10-40/10 dans le champ minute : 10, 20, 30 et 40"
+          ]
+        ]
+      },
+      {
+        "caption": "Exemples de planification",
+        "headers": [
+          "Planification",
+          "Champs (minute heure jour-mois mois jour-semaine)"
+        ],
+        "rows": [
+          [
+            "Toutes les 5 minutes",
+            "*/5 * * * *"
+          ],
+          [
+            "Toutes les heures, à la minute 0",
+            "0 * * * *"
+          ],
+          [
+            "Toutes les 2 heures",
+            "0 */2 * * *"
+          ],
+          [
+            "Tous les jours à 2 h 30",
+            "30 2 * * *"
+          ],
+          [
+            "Du lundi au vendredi à 8 h 30",
+            "30 8 * * 1-5"
+          ],
+          [
+            "Le samedi et le dimanche à minuit",
+            "0 0 * * 6,0"
+          ],
+          [
+            "Le dimanche à 9 h",
+            "0 9 * * 0"
+          ],
+          [
+            "Le 1er de chaque mois à 3 h",
+            "0 3 1 * *"
+          ],
+          [
+            "Au démarrage",
+            "@reboot (raccourci, à la place des cinq champs)"
+          ]
+        ]
+      }
+    ],
+    "examples": [
+      [
+        "*/5 * * * * /home/alice/bin/controle.sh",
+        "Lance le script toutes les 5 minutes."
+      ],
+      [
+        "30 8 * * 1-5 /home/alice/bin/rapport.sh",
+        "Lance le script à 8 h 30, du lundi au vendredi."
+      ],
+      [
+        "0 9 * * 0 /home/alice/bin/rapport.sh",
+        "Chaque dimanche à 9 h (0 = dimanche)."
+      ]
+    ],
+    "tip": "Dimanche = 0 ; 7 est aussi accepté sur la plupart des systèmes. Les noms anglais (mon, sun) dépendent de l'implémentation de cron : évite-les si la ligne doit tourner ailleurs."
+  },
+  {
+    "name": "Crontab : jours pairs et impairs",
+    "category": "Planification",
+    "description": "cron n'a pas de notation native pour les jours pairs ou impairs. On utilise un intervalle sur le champ jour du mois.",
+    "options": [],
+    "examples": [
+      [
+        "0 6 1-31/2 * * /home/alice/bin/controle.sh",
+        "Jours impairs : 1, 3, 5, … 31 de chaque mois."
+      ],
+      [
+        "0 6 2-30/2 * * /home/alice/bin/controle.sh",
+        "Jours pairs : 2, 4, 6, … 30 de chaque mois."
+      ],
+      [
+        "0 6 */2 * * /home/alice/bin/controle.sh",
+        "Même effet que 1-31/2 : */2 sur le jour du mois donne les impairs, pas les pairs."
+      ],
+      [
+        "0 6 * * * [ $((10#$(date +\\%d) % 2)) -eq 0 ] && /home/alice/bin/controle.sh",
+        "Jours pairs réels : le script teste le jour du mois. Le 10# évite l'erreur sur 08 et 09."
+      ]
+    ],
+    "warning": "Attention : la suite impair puis pair ne suit pas le calendrier. Le 31 et le 1er du mois suivant sont deux jours impairs qui se suivent : la tâche tourne deux jours de suite. Pour un vrai « un jour sur deux », utilise le script qui teste la date."
+  },
+  {
+    "name": "Crontab : jour du mois et jour de la semaine",
+    "category": "Planification",
+    "description": "Ne remplis pas à la fois le jour du mois et le jour de la semaine. Sur les cron classiques (Debian, Ubuntu, cronie), les deux conditions se combinent en OU, pas en ET.",
+    "options": [],
+    "examples": [
+      [
+        "0 9 * * 5 /home/alice/bin/rapport.sh",
+        "Chaque vendredi à 9 h : jour du mois laissé à *."
+      ],
+      [
+        "0 9 13 * 5 /home/alice/bin/rapport.sh",
+        "Piège : tourne le 13 de chaque mois ET chaque vendredi, pas seulement le vendredi 13."
+      ],
+      [
+        "0 9 13 * * /home/alice/bin/rapport.sh",
+        "Le 13 de chaque mois, sans condition de jour de la semaine."
+      ]
+    ],
+    "warning": "Attention : si les deux champs ne sont pas *, cron lance la tâche quand l'un OU l'autre correspond. Pour le « vendredi 13 », remplis un seul champ, puis teste la date dans le script."
+  },
+  {
+    "name": "Crontab : environnement, éditeur et journaux",
+    "category": "Planification",
+    "description": "Cron s'exécute avec un environnement minimal : il faut des chemins absolus, échapper le % et enregistrer la sortie pour la retrouver.",
+    "options": [],
+    "examples": [
+      [
+        "export EDITOR=nano",
+        "Choisit nano pour crontab -e, pour cette session."
+      ],
+      [
+        "0 2 * * * /usr/bin/tar -czf /home/alice/sauv.tgz /home/alice/docs",
+        "Chemins absolus : cron n'a pas le PATH de ton terminal."
+      ],
+      [
+        "*/10 * * * * /home/alice/bin/sync.sh >> /home/alice/sync.log 2>&1",
+        "Écrit la sortie et les erreurs dans un journal."
+      ],
+      [
+        "0 3 * * * date +\\%F >> /home/alice/dates.log",
+        "Dans une crontab, % doit être échappé en \\%. Sans cela, il coupe la commande."
+      ],
+      [
+        "journalctl -u cron",
+        "Affiche le journal de cron avec systemd (Ubuntu, Debian)."
+      ]
+    ],
+    "tip": "Le service s'appelle cron sur Ubuntu et Debian, crond sur Fedora et Red Hat. Dans /etc/crontab et dans /etc/cron.d/, une colonne utilisateur s'ajoute après les cinq champs."
+  },
+  {
+    "name": "time",
+    "category": "Système",
+    "description": "Mesure le temps d'exécution d'une commande (temps réel écoulé, temps CPU utilisateur et temps CPU système).",
+    "options": [
+      [
+        "real",
+        "Temps réel total écoulé entre le lancement et la fin de la commande."
+      ],
+      [
+        "user",
+        "Temps CPU passé en mode utilisateur."
+      ],
+      [
+        "sys",
+        "Temps CPU passé dans le noyau (appels système, entrées/sorties)."
+      ]
+    ],
+    "examples": [
+      [
+        "time tar -czf /tmp/sauv.tar.gz /etc",
+        "Mesure le temps nécessaire pour archiver et compresser /etc."
+      ],
+      [
+        "time sleep 2",
+        "Affiche un temps réel (real) d'environ 2 secondes."
+      ]
+    ],
+    "tip": "Pratique pour comparer la vitesse de compression entre gzip (-z), bzip2 (-j), xz (-J) et zstd (--zstd)."
+  },
+  {
+    "name": "Guillemets et substitution : ' ' , \" \" , $(...)",
+    "category": "Shell",
+    "description": "Contrôle comment le shell interprète les variables ($VAR) et exécute les commandes imbriquées $(commande).",
+    "options": [
+      [
+        "'texte' (simples)",
+        "Protège tout littéralement : $VAR et $(cmd) ne sont PAS évalués."
+      ],
+      [
+        "\"texte\" (doubles)",
+        "Évalue les variables ($VAR) et les substitutions $(cmd), tout en préservant les espaces."
+      ],
+      [
+        "$(commande)",
+        "Substitution de commande : exécute commande et remplace $(...) par son résultat."
+      ],
+      [
+        "var=valeur",
+        "Affectation : pas d'espace autour du =. Si var=date, $var contient la chaîne 'date', pas son résultat."
+      ]
+    ],
+    "examples": [
+      [
+        "a=$(date)",
+        "Exécute date et stocke le résultat dans la variable a."
+      ],
+      [
+        "a=date; echo $a",
+        "Affiche le mot 'date' (la commande n'a pas été exécutée)."
+      ],
+      [
+        "a=date; echo $($a)",
+        "Évalue $a ('date') puis exécute $(date) : affiche la date du jour."
+      ],
+      [
+        "echo 'date : $a'",
+        "Guillemets simples : affiche littéralement date : $a."
+      ],
+      [
+        "echo \"date : $(date)\"",
+        "Guillemets doubles : évalue $(date) et affiche la date complète."
+      ]
+    ],
+    "warning": "Attention : si a=date, écrire $($a) tout seul (sans echo) tente d'exécuter le résultat de date (ex : 'lun.') comme une commande, ce qui provoque une erreur."
+  },
+  {
+    "name": "Prompt Bash : PS1",
+    "category": "Shell",
+    "description": "La variable PS1 définit l'apparence de l'invite de commande du terminal Bash.",
+    "options": [
+      [
+        "\\u",
+        "Nom de l'utilisateur courant."
+      ],
+      [
+        "\\h / \\H",
+        "Nom court / complet de la machine (hostname)."
+      ],
+      [
+        "\\w / \\W",
+        "Répertoire courant complet / nom du dossier courant seul."
+      ],
+      [
+        "\\d / \\t",
+        "Date du jour / heure actuelle (HH:MM:SS)."
+      ],
+      [
+        "\\$",
+        "Affiche # si root, sinon $."
+      ],
+      [
+        "\\[\\e[...m\\]",
+        "Délimite les codes couleurs ANSI sans fausser le calcul de longueur de ligne du terminal."
+      ]
+    ],
+    "examples": [
+      [
+        "echo \"$PS1\"",
+        "Affiche la configuration actuelle du prompt."
+      ],
+      [
+        "PS1='\\u@\\h:\\w\\$ '",
+        "Prompt classique utilisateur@machine:dossier$."
+      ],
+      [
+        "PS1='\\[\\e[38;5;33m\\]\\d\\[\\e[0m\\] \\s \\u \\$ '",
+        "Affiche la date en bleu, le nom du shell (\\s), l'utilisateur et $."
+      ]
+    ],
+    "tip": "Pour conserver un prompt personnalisé à chaque ouverture de terminal, ajoute export PS1='...' dans ~/.bashrc."
+  },
+  {
+    "name": "Scripts Bash : structure, paramètres et tests",
+    "category": "Shell",
+    "description": "Bases pour écrire un script exécutable : shebang, arguments ($1, $2), conditions (if) et lecture de lignes (read).",
+    "options": [
+      [
+        "#!/bin/bash",
+        "Shebang (1re ligne obligatoire) : indique que le fichier s'exécute avec Bash."
+      ],
+      [
+        "$1, $2, ...",
+        "1er, 2e paramètre passé au script lors de l'appel (./script.sh arg1 arg2)."
+      ],
+      [
+        "$# / $@",
+        "$# = nombre d'arguments reçus ; $@ = liste de tous les arguments."
+      ],
+      [
+        "if cmd; then ... else ... fi",
+        "Exécute le bloc then si cmd réussit (code retour 0), sinon le bloc else."
+      ],
+      [
+        "[ -f fichier ] / [ -d rep ]",
+        "Teste l'existence d'un fichier ordinaire (-f) ou d'un répertoire (-d)."
+      ],
+      [
+        "IFS=':' read a b <<< \"$var\"",
+        "Découpe la chaîne $var selon le séparateur ':' dans les variables a, b..."
+      ]
+    ],
+    "examples": [
+      [
+        "chmod u+x rapport.sh && ./rapport.sh dossier out.txt",
+        "Rend le script exécutable puis le lance avec 2 paramètres."
+      ],
+      [
+        "dossier=\"${1}\"; rapport=\"${2}\"",
+        "Récupère le 1er et le 2e argument dans des variables nommées."
+      ],
+      [
+        "if [ -f \"${rapport}\" ]; then cat \"${rapport}\"; fi",
+        "Affiche le fichier s'il existe."
+      ],
+      [
+        "IFS=':' read login _ _ _ _ home shell <<< \"$ligne\"",
+        "Extrait login, home et shell d'une ligne /etc/passwd (le _ ignore les champs intermédiaires)."
+      ]
+    ],
+    "tip": "Entoure toujours tes variables de guillemets doubles (\"${dossier}\") pour éviter les bugs si un nom contient des espaces."
+  }
+];
+const commandKinds = {
+  "ls": "externe",
+  "cd": "interne",
+  "cp": "externe",
+  "mv": "externe",
+  "rm": "externe",
+  "chmod": "externe",
+  "umask : droits par défaut": "interne",
+  "grep": "externe",
+  "find": "externe",
+  "ps": "externe",
+  "kill": "interne et externe",
+  "ip": "externe",
+  "ssh": "externe",
+  "Opérateurs shell": "syntaxe",
+  "Méta-caractères : * ? [ ] { } ~": "syntaxe",
+  "pwd": "interne et externe",
+  "mkdir": "externe",
+  "touch": "externe",
+  "cat": "externe",
+  "less": "externe",
+  "df": "externe",
+  "du": "externe",
+  "free": "externe",
+  "man": "externe",
+  "sudo": "externe",
+  "head": "externe",
+  "tail": "externe",
+  "wc": "externe",
+  "sort": "externe",
+  "uniq": "externe",
+  "cut": "externe",
+  "tr": "externe",
+  "diff": "externe",
+  "tee": "externe",
+  "echo": "interne et externe",
+  "file": "externe",
+  "stat": "externe",
+  "ln": "externe",
+  "tar": "externe",
+  "date": "externe",
+  "uname": "externe",
+  "whoami": "externe",
+  "top": "externe",
+  "apt": "externe",
+  "chown": "externe",
+  "ping": "externe",
+  "ss": "externe",
+  "history": "interne",
+  "alias": "interne",
+  "env": "externe",
+  "pstree": "externe",
+  "htop": "externe",
+  "jobs": "interne",
+  "fg / bg": "interne",
+  "nohup": "externe",
+  "sleep": "externe",
+  "nice": "externe",
+  "renice": "externe",
+  "locate": "externe",
+  "crontab": "externe",
+  "time": "interne et externe",
+  "Guillemets et substitution : ' ' , \" \" , $(...)": "syntaxe",
+  "Prompt Bash : PS1": "syntaxe",
+  "Scripts Bash : structure, paramètres et tests": "syntaxe"
+};
+const kindHints = {
+  "interne": "Commande interne au shell : aide avec help nom, ou man bash.",
+  "externe": "Programme externe : aide avec man nom ou nom --help.",
+  "interne et externe": "Existe en interne et en externe : vérifie avec type -a nom.",
+  "syntaxe": "Syntaxe du shell, pas une commande."
+};
+const searchAliases = {
+  "ls": [
+    "lister",
+    "afficher",
+    "voir contenu"
+  ],
+  "cd": [
+    "changer de repertoire",
+    "aller dans un dossier",
+    "naviguer"
+  ],
+  "cp": [
+    "copier",
+    "duplicata",
+    "copie"
+  ],
+  "mv": [
+    "renommer",
+    "renommage",
+    "nommer",
+    "deplacer",
+    "rename",
+    "couper"
+  ],
+  "rm": [
+    "supprimer",
+    "effacer",
+    "retirer",
+    "delete"
+  ],
+  "chmod": [
+    "droits",
+    "permissions",
+    "autorisations",
+    "modifier droits",
+    "executable"
+  ],
+  "chown": [
+    "proprietaire",
+    "owner",
+    "groupe",
+    "changer proprietaire"
+  ],
+  "umask : droits par défaut": [
+    "droits par defaut",
+    "masque"
+  ],
+  "grep": [
+    "chercher",
+    "rechercher",
+    "trouver texte",
+    "filtrer",
+    "search"
+  ],
+  "find": [
+    "chercher fichier",
+    "rechercher fichier",
+    "trouver fichier",
+    "localiser",
+    "recursif"
+  ],
+  "locate": [
+    "localiser",
+    "trouver",
+    "base de donnees"
+  ],
+  "ps": [
+    "processus",
+    "lister processus",
+    "voir processus",
+    "pid"
+  ],
+  "pstree": [
+    "arbre",
+    "processus arbre",
+    "parent"
+  ],
+  "top": [
+    "processus gourmands",
+    "cpu",
+    "surveiller"
+  ],
+  "htop": [
+    "surveiller",
+    "processus",
+    "cpu"
+  ],
+  "kill": [
+    "tuer",
+    "arreter",
+    "stopper",
+    "terminer",
+    "signal"
+  ],
+  "jobs": [
+    "taches",
+    "arriere-plan",
+    "background"
+  ],
+  "fg / bg": [
+    "premier plan",
+    "arriere-plan",
+    "reprendre",
+    "suspendre"
+  ],
+  "nohup": [
+    "fermer terminal",
+    "rester actif",
+    "arriere-plan"
+  ],
+  "sleep": [
+    "attendre",
+    "pause",
+    "dormir"
+  ],
+  "nice": [
+    "priorite",
+    "niceness"
+  ],
+  "renice": [
+    "priorite",
+    "modifier priorite",
+    "niceness"
+  ],
+  "ip": [
+    "adresse",
+    "reseau",
+    "interface"
+  ],
+  "ssh": [
+    "connexion distante",
+    "distant",
+    "serveur"
+  ],
+  "pwd": [
+    "repertoire courant",
+    "ou suis-je",
+    "chemin"
+  ],
+  "mkdir": [
+    "creer dossier",
+    "creer repertoire",
+    "nouveau dossier"
+  ],
+  "touch": [
+    "creer fichier",
+    "nouveau fichier",
+    "date"
+  ],
+  "cat": [
+    "afficher fichier",
+    "lire",
+    "concatener",
+    "contenu"
+  ],
+  "less": [
+    "lire",
+    "consulter",
+    "page"
+  ],
+  "df": [
+    "espace disque",
+    "place",
+    "disque libre"
+  ],
+  "du": [
+    "taille",
+    "espace",
+    "occupation"
+  ],
+  "free": [
+    "memoire",
+    "ram",
+    "swap"
+  ],
+  "man": [
+    "manuel",
+    "aide",
+    "documentation"
+  ],
+  "sudo": [
+    "root",
+    "administrateur",
+    "superutilisateur",
+    "privileges"
+  ],
+  "head": [
+    "debut",
+    "premieres lignes",
+    "entete"
+  ],
+  "tail": [
+    "fin",
+    "dernieres lignes",
+    "suivre",
+    "follow"
+  ],
+  "wc": [
+    "compter",
+    "lignes",
+    "mots",
+    "octets"
+  ],
+  "sort": [
+    "trier",
+    "ordonner"
+  ],
+  "uniq": [
+    "doublons",
+    "supprimer doublons",
+    "unique"
+  ],
+  "cut": [
+    "colonne",
+    "extraire",
+    "champ"
+  ],
+  "tr": [
+    "remplacer caracteres",
+    "transformer",
+    "supprimer caracteres"
+  ],
+  "diff": [
+    "comparer",
+    "difference"
+  ],
+  "tee": [
+    "ecrire et afficher",
+    "sauvegarder"
+  ],
+  "echo": [
+    "afficher texte",
+    "variable"
+  ],
+  "file": [
+    "type fichier",
+    "identifier"
+  ],
+  "stat": [
+    "informations fichier",
+    "date modification",
+    "metadonnees"
+  ],
+  "ln": [
+    "lien",
+    "lien symbolique",
+    "raccourci",
+    "symlink"
+  ],
+  "tar": [
+    "archive",
+    "archiver",
+    "decompresser",
+    "extraire",
+    "compresser"
+  ],
+  "date": [
+    "heure",
+    "horodatage",
+    "formater date"
+  ],
+  "uname": [
+    "systeme",
+    "noyau",
+    "version"
+  ],
+  "whoami": [
+    "utilisateur",
+    "qui suis-je"
+  ],
+  "apt": [
+    "installer",
+    "paquet",
+    "logiciel",
+    "mise a jour",
+    "desinstaller"
+  ],
+  "ping": [
+    "tester connexion",
+    "latence",
+    "joignable"
+  ],
+  "ss": [
+    "ports",
+    "sockets",
+    "ports ouverts"
+  ],
+  "history": [
+    "historique",
+    "commandes precedentes"
+  ],
+  "alias": [
+    "raccourci",
+    "abreviation"
+  ],
+  "env": [
+    "variables",
+    "environnement"
+  ],
+  "Variables : set, env, export": [
+    "variable",
+    "export",
+    "exporter",
+    "enfant",
+    "heriter",
+    "set",
+    "env",
+    "environnement",
+    "transmettre"
+  ],
+  "crontab": [
+    "cron",
+    "planifier",
+    "planification",
+    "tache planifiee",
+    "automatiser",
+    "periodique",
+    "repeter",
+    "horaire",
+    "intervalle",
+    "chaque jour",
+    "toutes les heures",
+    "demarrage"
+  ],
+  "time": [
+    "duree",
+    "chronometrer",
+    "temps execution",
+    "performance"
+  ],
+  "Guillemets et substitution : ' ' , \" \" , $(...)": [
+    "quotes",
+    "apostrophe",
+    "substitution",
+    "commande imbriquee",
+    "dollar"
+  ],
+  "Prompt Bash : PS1": [
+    "invite",
+    "couleur terminal",
+    "ps1",
+    "personnaliser prompt"
+  ],
+  "Scripts Bash : structure, paramètres et tests": [
+    "script",
+    "shebang",
+    "if",
+    "then",
+    "else",
+    "fi",
+    "read",
+    "ifs",
+    "parametre",
+    "argument",
+    "basename"
+  ]
+};
+
+// État de l'application
+let activeCategory = "";
+let titleOnly = false;
+let pinnedOnly = false;
+const pinnedSet = new Set();
+
+const board = document.getElementById("results-board");
+const searchInput = document.getElementById("search-input");
+const countEl = document.getElementById("result-count");
+const titleOnlyBtn = document.getElementById("title-only-btn");
+const pinnedOnlyBtn = document.getElementById("pinned-only-btn");
+const resetBtn = document.getElementById("reset-btn");
+const categoryPillsEl = document.getElementById("category-pills");
+const themeToggleBtn = document.getElementById("theme-toggle-btn");
+const topBtn = document.getElementById("top-btn");
+const downloadBtn = document.getElementById("download-btn");
+const modal = document.getElementById("card-modal");
+const modalBody = document.getElementById("modal-body");
+const modalCloseBtn = document.getElementById("modal-close-btn");
+
+// Normalisation sans accents pour une recherche souple
+function norm(str) {
+    return (str || "").normalize("NFD").replace(/\p{M}/gu, "").toLocaleLowerCase("fr");
+}
+
+function escapeRegExp(val) {
+    return val.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function highlightText(container, text, query) {
+    const terms = query.trim().split(/\s+/).filter(Boolean);
+    if (!terms.length) {
+        container.textContent = text;
+        return;
+    }
+    const regex = new RegExp("(" + terms.map(escapeRegExp).join("|") + ")", "gi");
+    let lastIdx = 0;
+    for (const match of text.matchAll(regex)) {
+        const idx = match.index;
+        if (idx > lastIdx) {
+            container.appendChild(document.createTextNode(text.slice(lastIdx, idx)));
+        }
+        const mark = document.createElement("mark");
+        mark.textContent = match[0];
+        container.appendChild(mark);
+        lastIdx = idx + match[0].length;
+    }
+    if (lastIdx < text.length) {
+        container.appendChild(document.createTextNode(text.slice(lastIdx)));
+    }
+}
+
+// Initialisation des pilules de catégories
+const categories = ["Toutes", ...Array.from(new Set(commands.map(c => c.category)))];
+function renderCategories() {
+    categoryPillsEl.replaceChildren();
+    categories.forEach(cat => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        const isAll = cat === "Toutes";
+        const isActive = (isAll && !activeCategory) || cat === activeCategory;
+        btn.className = "cat-pill" + (isActive ? " active" : "");
+        btn.textContent = cat;
+        btn.onclick = () => {
+            activeCategory = isAll ? "" : cat;
+            renderCategories();
+            renderBoard();
+        };
+        categoryPillsEl.appendChild(btn);
+    });
+}
+
+// Calcul du nombre de colonnes selon la largeur de l'écran
+function getColumnCount() {
+    const w = window.innerWidth;
+    if (w < 740) return 1;
+    return 2;
+}
+
+// Construction d'un tableau HTML pour les cartes qui en possèdent
+function buildTableElement(tableData, rawQuery) {
+    const wrap = document.createElement("div");
+    wrap.className = "table-wrap";
+    const table = document.createElement("table");
+    if (tableData.caption) {
+        const cap = document.createElement("caption");
+        highlightText(cap, tableData.caption, rawQuery);
+        table.appendChild(cap);
+    }
+    const thead = document.createElement("thead");
+    const trHead = document.createElement("tr");
+    tableData.headers.forEach(h => {
+        const th = document.createElement("th");
+        highlightText(th, h, rawQuery);
+        trHead.appendChild(th);
+    });
+    thead.appendChild(trHead);
+    table.appendChild(thead);
+
+    const tbody = document.createElement("tbody");
+    tableData.rows.forEach(row => {
+        const tr = document.createElement("tr");
+        row.forEach((cellText, idx) => {
+            const cell = document.createElement(idx === 0 ? "th" : "td");
+            highlightText(cell, cellText, rawQuery);
+            tr.appendChild(cell);
+        });
+        tbody.appendChild(tr);
+    });
+    table.appendChild(tbody);
+    wrap.appendChild(table);
+    return wrap;
+}
+
+// Copie dans le presse-papiers
+function copyToClipboard(btn, text) {
+    navigator.clipboard.writeText(text).then(() => {
+        const orig = btn.textContent;
+        btn.textContent = "Copié";
+        btn.classList.add("copied");
+        setTimeout(() => {
+            btn.textContent = orig;
+            btn.classList.remove("copied");
+        }, 1300);
+    }).catch(() => {
+        window.prompt("Copiez la commande :", text);
+    });
+}
+
+// Création d'une carte DOM complète
+function createCardElement(cmd, rawQuery) {
+    const card = document.createElement("article");
+    card.className = "card" + (pinnedSet.has(cmd.name) ? " pinned" : "");
+
+    // En-tête de la carte
+    const header = document.createElement("div");
+    header.className = "card-header";
+
+    const titleGroup = document.createElement("div");
+    titleGroup.className = "card-title-group";
+
+    const title = document.createElement("h2");
+    title.className = "card-title";
+    highlightText(title, cmd.name, rawQuery);
+    titleGroup.appendChild(title);
+
+    const kind = commandKinds[cmd.name];
+    if (kind) {
+        const kBadge = document.createElement("span");
+        kBadge.className = "kind-badge";
+        kBadge.textContent = kind;
+        if (kindHints[kind]) kBadge.title = kindHints[kind];
+        titleGroup.appendChild(kBadge);
+    }
+
+    const badgeGroup = document.createElement("div");
+    badgeGroup.className = "badge-group";
+
+    const cBadge = document.createElement("span");
+    cBadge.className = "cat-badge";
+    cBadge.textContent = cmd.category;
+    badgeGroup.appendChild(cBadge);
+
+    const pinBtn = document.createElement("button");
+    pinBtn.type = "button";
+    pinBtn.className = "pin-btn";
+    pinBtn.title = pinnedSet.has(cmd.name) ? "Retirer de la sélection" : "Épingler cette carte pour réviser";
+    pinBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>';
+    pinBtn.onclick = (e) => {
+        e.stopPropagation();
+        if (pinnedSet.has(cmd.name)) {
+            pinnedSet.delete(cmd.name);
+        } else {
+            pinnedSet.add(cmd.name);
+        }
+        updatePinnedUI();
+        if (pinnedOnly) {
+            renderBoard();
+        } else {
+            card.classList.toggle("pinned", pinnedSet.has(cmd.name));
+        }
+    };
+    badgeGroup.appendChild(pinBtn);
+
+    header.append(titleGroup, badgeGroup);
+    card.appendChild(header);
+
+    // Description
+    const desc = document.createElement("p");
+    desc.className = "card-desc";
+    highlightText(desc, cmd.description, rawQuery);
+    card.appendChild(desc);
+
+    // Tableaux éventuels
+    if (cmd.tables && cmd.tables.length) {
+        cmd.tables.forEach(t => card.appendChild(buildTableElement(t, rawQuery)));
+    }
+
+    // Options
+    if (cmd.options && cmd.options.length) {
+        const optWrap = document.createElement("div");
+        const optTitle = document.createElement("div");
+        optTitle.className = "section-label";
+        optTitle.textContent = "Options & Syntaxe";
+        optWrap.appendChild(optTitle);
+
+        const optGrid = document.createElement("div");
+        optGrid.className = "options-grid";
+        cmd.options.forEach(([optKey, optDesc]) => {
+            const row = document.createElement("div");
+            row.className = "opt-row";
+            const k = document.createElement("code");
+            k.className = "opt-key";
+            highlightText(k, optKey, rawQuery);
+            const v = document.createElement("span");
+            v.className = "opt-val";
+            highlightText(v, optDesc, rawQuery);
+            row.append(k, v);
+            optGrid.appendChild(row);
+        });
+        optWrap.appendChild(optGrid);
+        card.appendChild(optWrap);
+    }
+
+    // Exemples
+    if (cmd.examples && cmd.examples.length) {
+        const exWrap = document.createElement("div");
+        const exTitle = document.createElement("div");
+        exTitle.className = "section-label";
+        exTitle.textContent = "Exemples pratiques";
+        exWrap.appendChild(exTitle);
+
+        const exList = document.createElement("div");
+        exList.className = "examples-list";
+        cmd.examples.forEach(([exCode, exExp]) => {
+            const item = document.createElement("div");
+            item.className = "example-item";
+
+            const top = document.createElement("div");
+            top.className = "example-top";
+
+            const codeEl = document.createElement("code");
+            codeEl.className = "example-code";
+            highlightText(codeEl, exCode, rawQuery);
+
+            const copyBtn = document.createElement("button");
+            copyBtn.type = "button";
+            copyBtn.className = "copy-btn";
+            copyBtn.textContent = "Copier";
+            copyBtn.onclick = (e) => {
+                e.stopPropagation();
+                copyToClipboard(copyBtn, exCode);
+            };
+
+            top.append(codeEl, copyBtn);
+
+            const expEl = document.createElement("span");
+            expEl.className = "example-exp";
+            highlightText(expEl, exExp, rawQuery);
+
+            item.append(top, expEl);
+            exList.appendChild(item);
+        });
+        exWrap.appendChild(exList);
+        card.appendChild(exWrap);
+    }
+
+    // Note / Avertissement
+    if (cmd.warning || cmd.tip) {
+        const note = document.createElement("div");
+        note.className = "card-note" + (cmd.warning ? " warning" : "");
+        highlightText(note, cmd.warning || cmd.tip, rawQuery);
+        card.appendChild(note);
+    }
+
+    // Clic sur la carte -> Ouverture de la modale centrée avec flou d'arrière-plan
+    card.addEventListener("click", (e) => {
+        if (e.target.closest("button, a")) return;
+        openCardModal(cmd, rawQuery);
+    });
+
+    return card;
+}
+
+function openCardModal(cmd, rawQuery) {
+    modalBody.replaceChildren();
+    const detailedCard = createCardElement(cmd, rawQuery);
+    modalBody.appendChild(detailedCard);
+    modal.showModal();
+}
+
+function updatePinnedUI() {
+    pinnedOnlyBtn.textContent = `Sélection (${pinnedSet.size})`;
+    pinnedOnlyBtn.disabled = pinnedSet.size === 0 && !pinnedOnly;
+    pinnedOnlyBtn.setAttribute("aria-pressed", String(pinnedOnly));
+}
+
+// Distribution intelligente dans N colonnes indépendantes :
+// Chaque nouvelle carte est placée dans la colonne la plus courte -> ZÉRO TROU VISUEL
+function renderBoard() {
+    const rawQuery = searchInput.value.trim();
+    const queryNorm = norm(rawQuery);
+    const terms = queryNorm.split(/\s+/).filter(Boolean);
+
+    const filtered = commands.filter(cmd => {
+        if (activeCategory && cmd.category !== activeCategory) return false;
+        if (pinnedOnly && !pinnedSet.has(cmd.name)) return false;
+        if (!terms.length) return true;
+
+        const aliases = (searchAliases[cmd.name] || []).join(" ");
+        const haystack = titleOnly
+            ? norm(cmd.name)
+            : norm(JSON.stringify(cmd) + " " + aliases);
+        return terms.every(t => haystack.includes(t));
+    });
+
+    updatePinnedUI();
+    countEl.innerHTML = `<strong>${filtered.length}</strong> fiche${filtered.length > 1 ? "s" : ""} affichée${filtered.length > 1 ? "s" : ""}`;
+
+    board.replaceChildren();
+
+    if (filtered.length === 0) {
+        board.style.display = "block";
+        const empty = document.createElement("div");
+        empty.className = "empty-state";
+        empty.textContent = "Aucune commande ne correspond à votre recherche. Essayez un autre terme ou réinitialisez les filtres.";
+        board.appendChild(empty);
+        return;
+    }
+
+    board.style.display = "grid";
+    const numCols = getColumnCount();
+    board.style.setProperty("--cols", numCols);
+
+    const colElements = [];
+    const colHeights = [];
+    for (let i = 0; i < numCols; i++) {
+        const col = document.createElement("div");
+        col.className = "masonry-col";
+        board.appendChild(col);
+        colElements.push(col);
+        colHeights.push(0);
+    }
+
+    // Répartition équilibrée selon le poids estimé du contenu de chaque carte
+    filtered.forEach(cmd => {
+        const cardEl = createCardElement(cmd, rawQuery);
+        let minColIndex = 0;
+        for (let i = 1; i < numCols; i++) {
+            if (colHeights[i] < colHeights[minColIndex]) {
+                minColIndex = i;
+            }
+        }
+        colElements[minColIndex].appendChild(cardEl);
+        const estimatedWeight = 120
+            + (cmd.description ? cmd.description.length * 0.5 : 0)
+            + (cmd.options ? cmd.options.length * 36 : 0)
+            + (cmd.examples ? cmd.examples.length * 52 : 0)
+            + (cmd.tables ? cmd.tables.length * 160 : 0)
+            + (cmd.warning || cmd.tip ? 60 : 0);
+        colHeights[minColIndex] += estimatedWeight;
+    });
+}
+
+// Événements de la barre d'outils
+searchInput.addEventListener("input", renderBoard);
+
+titleOnlyBtn.addEventListener("click", () => {
+    titleOnly = !titleOnly;
+    titleOnlyBtn.setAttribute("aria-pressed", String(titleOnly));
+    renderBoard();
+});
+
+pinnedOnlyBtn.addEventListener("click", () => {
+    pinnedOnly = !pinnedOnly;
+    renderBoard();
+});
+
+resetBtn.addEventListener("click", () => {
+    searchInput.value = "";
+    activeCategory = "";
+    titleOnly = false;
+    pinnedOnly = false;
+    pinnedSet.clear();
+    titleOnlyBtn.setAttribute("aria-pressed", "false");
+    renderCategories();
+    renderBoard();
+    searchInput.focus();
+});
+
+// Redimensionnement réactif des colonnes
+let lastColCount = getColumnCount();
+window.addEventListener("resize", () => {
+    const currentCols = getColumnCount();
+    if (currentCols !== lastColCount) {
+        lastColCount = currentCols;
+        renderBoard();
+    }
+});
+
+// Gestion de la modale
+modalCloseBtn.addEventListener("click", () => modal.close());
+modal.addEventListener("click", (e) => {
+    if (e.target === modal) modal.close();
+});
+
+// Gestion du thème dans le footer
+function syncThemeButtonLabel() {
+    const isLight = document.documentElement.getAttribute("data-theme") === "light";
+    themeToggleBtn.textContent = isLight ? "Passer au thème sombre" : "Passer au thème clair";
+}
+
+themeToggleBtn.addEventListener("click", () => {
+    const root = document.documentElement;
+    const isLight = root.getAttribute("data-theme") === "light";
+    root.setAttribute("data-theme", isLight ? "dark" : "light");
+    syncThemeButtonLabel();
+});
+
+topBtn.addEventListener("click", () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+});
+
+// Téléchargement autonome hors-ligne
+downloadBtn.addEventListener("click", () => {
+    const clone = document.documentElement.cloneNode(true);
+    clone.querySelector("#results-board").replaceChildren();
+    clone.querySelectorAll("dialog[open]").forEach(d => d.removeAttribute("open"));
+    const htmlStr = "<!DOCTYPE html>\n" + clone.outerHTML;
+    const blob = new Blob([htmlStr], { type: "text/html;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "cheatsheet-linux.html";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+});
+
+// Lancement initial
+syncThemeButtonLabel();
+renderCategories();
+renderBoard();
+</script>
+</body>
+</html>

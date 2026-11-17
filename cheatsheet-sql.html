@@ -1,0 +1,2608 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Fiche mémo SQL / PostgreSQL complète en français : requêtes, agrégations, jointures, dates et fonctions, 100 % hors ligne.">
+<title>SQL CheatSheet (PostgreSQL) — Révisions</title>
+<script>
+(function() {
+    try {
+        const saved = localStorage.getItem("revision_theme_preference");
+        if (saved === "light" || saved === "dark") {
+            document.documentElement.setAttribute("data-theme", saved);
+        }
+    } catch (e) {}
+})();
+</script>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' rx='3' fill='%23191919'/%3E%3Cpath d='M4.5 5.5L7.5 8L4.5 10.5M8.5 10.5H11.5' stroke='%23ffffff' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<style>
+/* ==========================================================================
+   PALETTE UTILISATEUR (NEUTRE & ÉPURÉE)
+   ========================================================================== */
+:root {
+    --background-page-color: #191919;
+    --white-color: #ffffff;
+    --background-element-color: #252525;
+    --attachment-tag: #3e3e3e;
+    --background-card: #1e1e1e;
+    --background-card-label: #2c2c2c;
+    --background-card-body: #242424;
+    --box-color: #2e2e2e;
+    --button-hover-color: #424141;
+    --attachment-color: #4a4a4a;
+    --text-muted: #9e9e9e;
+    --border-subtle: #333333;
+    --border-focus: #616161;
+    --banniere-color-1: #007806;
+    --banniere-color-2: #00c306;
+    --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.28);
+    --shadow-hover: 0 8px 28px rgba(0, 0, 0, 0.45);
+    --mark-bg: rgba(255, 214, 10, 0.25);
+    --mark-text: #ffd60a;
+    color-scheme: dark;
+}
+
+:root[data-theme="light"] {
+    --background-page-color: #f0f0f0;
+    --white-color: #1e1e1e;
+    --background-element-color: #ffffff;
+    --attachment-tag: #dcdcdc;
+    --background-card: #ffffff;
+    --background-card-label: #eaeaea;
+    --background-card-body: #f7f7f7;
+    --box-color: #e4e4e4;
+    --button-hover-color: #cccccc;
+    --attachment-color: #bcbcbc;
+    --text-muted: #5a5a5a;
+    --border-subtle: #dddddd;
+    --border-focus: #888888;
+    --banniere-color-1: #007806;
+    --banniere-color-2: #00a008;
+    --shadow-card: 0 2px 12px rgba(0, 0, 0, 0.05);
+    --shadow-hover: 0 8px 24px rgba(0, 0, 0, 0.10);
+    --mark-bg: #fff3b0;
+    --mark-text: #1e1e1e;
+    color-scheme: light;
+}
+
+/* ==========================================================================
+   RESET & BASE
+   ========================================================================== */
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background-color: var(--background-page-color);
+    color: var(--white-color);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.6;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    transition: background-color 0.2s ease, color 0.2s ease;
+    -webkit-font-smoothing: antialiased;
+}
+
+.page-wrapper {
+    width: min(100% - 32px, 1340px);
+    margin-inline: auto;
+    flex: 1;
+    padding-top: 36px;
+    padding-bottom: 60px;
+}
+
+/* ==========================================================================
+   HEADER
+   ========================================================================== */
+.site-header {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 16px;
+    margin-bottom: 28px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border-subtle);
+}
+
+.brand-group {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.brand-logo {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: var(--background-element-color);
+    border: 1px solid var(--attachment-tag);
+    display: grid;
+    place-items: center;
+    color: var(--white-color);
+    box-shadow: var(--shadow-card);
+}
+
+.brand-logo svg {
+    width: 24px;
+    height: 24px;
+}
+
+.brand-titles h1 {
+    font-size: clamp(1.5rem, 2.5vw, 2rem);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--white-color);
+    line-height: 1.2;
+}
+
+.brand-titles p {
+    color: var(--text-muted);
+    font-size: 0.92rem;
+    margin-top: 2px;
+}
+
+.header-stats {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.header-back-btn {
+    text-decoration: none;
+    background: var(--box-color);
+    border: 1px solid var(--border-subtle);
+    color: var(--white-color);
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: background-color 0.18s ease, border-color 0.18s ease, transform 0.15s ease;
+}
+
+.header-back-btn:hover {
+    background: var(--button-hover-color);
+    border-color: var(--border-focus);
+    transform: translateX(-2px);
+}
+
+.header-back-btn svg {
+    width: 14px;
+    height: 14px;
+}
+
+.stat-pill {
+    background: var(--background-element-color);
+    border: 1px solid var(--border-subtle);
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+.stat-pill strong {
+    color: var(--white-color);
+}
+
+/* ==========================================================================
+   BARRE DE RECHERCHE & FILTRES (STICKY)
+   ========================================================================== */
+.toolbar-container {
+    position: sticky;
+    top: 14px;
+    z-index: 40;
+    margin-bottom: 28px;
+}
+
+.toolbar {
+    background: color-mix(in srgb, var(--background-card) 92%, transparent);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--attachment-tag);
+    border-radius: 12px;
+    padding: 14px;
+    box-shadow: var(--shadow-card);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.search-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+}
+
+.search-box {
+    flex: 1 1 320px;
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.search-box svg {
+    position: absolute;
+    left: 14px;
+    width: 18px;
+    height: 18px;
+    color: var(--text-muted);
+    pointer-events: none;
+}
+
+.search-box input {
+    width: 100%;
+    padding: 8px 14px 8px 42px;
+    border-radius: 8px;
+    border: 1px solid var(--border-subtle);
+    background: var(--background-page-color);
+    color: var(--white-color);
+    font-size: 0.96rem;
+    font-family: inherit;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.search-box input:focus {
+    outline: none;
+    border-color: var(--border-focus);
+}
+
+.toolbar-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+}
+
+.btn {
+    padding: 10px 15px;
+    border-radius: 8px;
+    border: 1px solid var(--border-subtle);
+    background: var(--box-color);
+    color: var(--white-color);
+    font-family: inherit;
+    font-size: 0.88rem;
+    font-weight: 500;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background-color 0.18s ease, border-color 0.18s ease, transform 0.1s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    white-space: nowrap;
+}
+
+.btn:hover:not(:disabled) {
+    background: var(--button-hover-color);
+    border-color: var(--border-focus);
+}
+
+.btn:active:not(:disabled) {
+    transform: translateY(1px);
+}
+
+.btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+.btn[aria-pressed="true"] {
+    background: var(--white-color);
+    color: var(--background-page-color);
+    border-color: var(--white-color);
+    font-weight: 600;
+}
+
+.btn-primary-green {
+    background: var(--banniere-color-1);
+    color: #ffffff;
+    border-color: var(--banniere-color-1);
+    font-weight: 600;
+}
+
+.btn-primary-green:hover:not(:disabled) {
+    background: var(--banniere-color-2);
+    border-color: var(--banniere-color-2);
+    color: #ffffff;
+}
+
+/* Pilules de catégories */
+.category-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding-top: 4px;
+}
+
+.cat-pill {
+    padding: 5px 12px;
+    border-radius: 999px;
+    border: 1px solid transparent;
+    background: var(--background-element-color);
+    color: var(--text-muted);
+    font-size: 0.82rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.16s ease;
+    font-family: inherit;
+}
+
+.cat-pill:hover {
+    color: var(--white-color);
+    background: var(--box-color);
+}
+
+.cat-pill.active {
+    background: var(--white-color);
+    color: var(--background-page-color);
+    font-weight: 600;
+}
+
+/* ==========================================================================
+   GRILLE FLEX-MASONRY (ZÉRO VIDE, ZÉRO BUG DE COLONNE CSS)
+   ========================================================================== */
+.masonry-board {
+    display: grid;
+    grid-template-columns: repeat(var(--cols, 2), minmax(0, 1fr));
+    gap: 20px;
+    align-items: start;
+}
+
+.masonry-col {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    min-width: 0;
+}
+
+/* ==========================================================================
+   CARTES DE COMMANDES
+   ========================================================================== */
+.card {
+    background: var(--background-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: var(--shadow-card);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    cursor: pointer;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.card:hover {
+    border-color: var(--border-focus);
+    box-shadow: var(--shadow-hover);
+}
+
+.card.pinned {
+    border-color: var(--white-color);
+    box-shadow: 0 0 0 1px var(--white-color), var(--shadow-card);
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border-subtle);
+}
+
+.card-title-group {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+}
+
+.card-title {
+    font-size: 1.22rem;
+    font-weight: 700;
+    color: var(--white-color);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    letter-spacing: -0.02em;
+    word-break: break-word;
+}
+
+.badge-group {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+}
+
+.cat-badge {
+    background: var(--background-card-label);
+    color: var(--white-color);
+    border: 1px solid var(--attachment-tag);
+    padding: 3px 9px;
+    border-radius: 6px;
+    font-size: 0.74rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+}
+
+.kind-badge {
+    background: transparent;
+    color: var(--text-muted);
+    border: 1px solid var(--border-subtle);
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-family: system-ui, sans-serif;
+}
+
+.pin-btn {
+    background: var(--background-element-color);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-muted);
+    width: 30px;
+    height: 30px;
+    border-radius: 6px;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    flex-shrink: 0;
+}
+
+.pin-btn:hover {
+    color: var(--white-color);
+    border-color: var(--border-focus);
+    background: var(--box-color);
+}
+
+.card.pinned .pin-btn {
+    background: var(--white-color);
+    color: var(--background-page-color);
+    border-color: var(--white-color);
+}
+
+.card-desc {
+    color: var(--white-color);
+    opacity: 0.92;
+    font-size: 0.94rem;
+    line-height: 1.55;
+}
+
+.section-label {
+    font-size: 0.76rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-muted);
+    margin-top: 4px;
+    margin-bottom: 6px;
+}
+
+/* Liste d'options structurée */
+.options-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    background: var(--background-card-body);
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid var(--border-subtle);
+}
+
+.opt-row {
+    display: grid;
+    grid-template-columns: minmax(110px, auto) 1fr;
+    gap: 12px;
+    align-items: flex-start;
+    font-size: 0.88rem;
+    padding-bottom: 6px;
+    border-bottom: 1px dashed var(--border-subtle);
+}
+
+.opt-row:last-child {
+    padding-bottom: 0;
+    border-bottom: none;
+}
+
+.opt-key {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-weight: 600;
+    color: var(--white-color);
+    background: var(--box-color);
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.84rem;
+    justify-self: start;
+    border: 1px solid var(--attachment-tag);
+    white-space: pre;
+    tab-size: 4;
+    line-height: 1.45;
+    max-width: 100%;
+    overflow-x: auto;
+}
+
+.opt-val {
+    color: var(--white-color);
+    opacity: 0.88;
+    white-space: pre-wrap;
+    line-height: 1.45;
+}
+
+/* Exemples avec bouton copier */
+.examples-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.example-item {
+    background: var(--background-card-body);
+    border: 1px solid var(--border-subtle);
+    border-radius: 8px;
+    padding: 10px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.example-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+.example-code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 0.87rem;
+    font-weight: 600;
+    color: var(--white-color);
+    white-space: pre;
+    tab-size: 4;
+    line-height: 1.5;
+    overflow-x: auto;
+    max-width: 100%;
+}
+
+.copy-btn {
+    background: var(--box-color);
+    border: 1px solid var(--attachment-tag);
+    color: var(--text-muted);
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 0.74rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    flex-shrink: 0;
+    margin-top: 1px;
+}
+
+.copy-btn:hover {
+    color: var(--white-color);
+    background: var(--button-hover-color);
+}
+
+.copy-btn.copied {
+    background: var(--banniere-color-1);
+    color: #ffffff;
+    border-color: var(--banniere-color-1);
+}
+
+.example-exp {
+    font-size: 0.84rem;
+    color: var(--text-muted);
+}
+
+/* Tableaux intégrés aux cartes */
+.table-wrap {
+    overflow-x: auto;
+    border: 1px solid var(--border-subtle);
+    border-radius: 8px;
+    background: var(--background-card-body);
+    margin: 4px 0;
+}
+
+.table-wrap table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.84rem;
+}
+
+.table-wrap caption {
+    text-align: left;
+    padding: 8px 10px;
+    font-weight: 600;
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--border-subtle);
+    background: var(--background-element-color);
+}
+
+.table-wrap th, .table-wrap td {
+    padding: 7px 10px;
+    text-align: left;
+    border-bottom: 1px solid var(--border-subtle);
+    vertical-align: top;
+}
+
+.table-wrap thead th {
+    background: var(--box-color);
+    color: var(--white-color);
+    font-weight: 600;
+}
+
+.table-wrap tbody tr:last-child th,
+.table-wrap tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* Notes & Alertes */
+.card-note {
+    padding: 10px 12px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    background: var(--background-element-color);
+    border-left: 3px solid var(--attachment-color);
+    color: var(--white-color);
+    opacity: 0.92;
+}
+
+.card-note.warning {
+    border-left-color: #d97706;
+    background: color-mix(in srgb, #d97706 10%, var(--background-element-color));
+}
+
+mark {
+    background: var(--mark-bg);
+    color: var(--mark-text);
+    padding: 0 3px;
+    border-radius: 3px;
+}
+
+.empty-state {
+    background: var(--background-card);
+    border: 1px dashed var(--attachment-tag);
+    border-radius: 12px;
+    padding: 48px 20px;
+    text-align: center;
+    color: var(--text-muted);
+    margin: 20px 0;
+}
+
+/* ==========================================================================
+   SECTIONS ASTUCES (ACCORDÉONS)
+   ========================================================================== */
+.tips-section {
+    margin-top: 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+details.tips {
+    background: var(--background-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: 12px;
+    padding: 18px 22px;
+    box-shadow: var(--shadow-card);
+}
+
+details.tips summary {
+    cursor: pointer;
+    list-style: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    font-weight: 600;
+}
+
+details.tips summary::-webkit-details-marker {
+    display: none;
+}
+
+details.tips summary h2 {
+    font-size: 1.1rem;
+    color: var(--white-color);
+    font-weight: 600;
+}
+
+details.tips summary::after {
+    content: "Afficher";
+    font-size: 0.8rem;
+    padding: 4px 10px;
+    border-radius: 6px;
+    background: var(--box-color);
+    border: 1px solid var(--attachment-tag);
+    color: var(--text-muted);
+}
+
+details.tips[open] summary::after {
+    content: "Masquer";
+}
+
+details.tips[open] summary {
+    padding-bottom: 14px;
+    margin-bottom: 14px;
+    border-bottom: 1px solid var(--border-subtle);
+}
+
+details.tips h3 {
+    font-size: 0.98rem;
+    color: var(--white-color);
+    margin: 16px 0 8px;
+}
+
+details.tips p, details.tips li {
+    font-size: 0.92rem;
+    color: var(--white-color);
+    opacity: 0.9;
+    margin: 6px 0;
+}
+
+details.tips ul {
+    padding-left: 20px;
+}
+
+details.tips code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    background: var(--background-card-body);
+    padding: 2px 6px;
+    border-radius: 4px;
+    border: 1px solid var(--border-subtle);
+    font-size: 0.86em;
+}
+
+details.tips .note {
+    margin-top: 12px;
+    padding: 10px 14px;
+    background: var(--background-card-body);
+    border-left: 3px solid var(--border-focus);
+    border-radius: 0 8px 8px 0;
+}
+
+/* ==========================================================================
+   MODALE D'AFFICHAGE AGRANDI (AVEC ARRIÈRE-PLAN FLOUTÉ)
+   ========================================================================== */
+dialog#card-modal {
+    width: min(92vw, 760px);
+    max-height: 88vh;
+    margin: auto;
+    padding: 0;
+    border: 1px solid var(--attachment-color);
+    border-radius: 16px;
+    background: var(--background-card);
+    color: var(--white-color);
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.65);
+    overflow: hidden;
+}
+
+dialog#card-modal::backdrop {
+    background: rgba(10, 10, 10, 0.62);
+    backdrop-filter: blur(7px);
+    -webkit-backdrop-filter: blur(7px);
+    animation: backdropFade 0.2s ease;
+}
+
+
+dialog#card-modal[open] {
+    animation: modalZoom 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Nouveau : Empêcher le défilement du corps (body) quand une modale est ouverte */
+body:has(dialog#card-modal[open]) {
+    overflow: hidden;
+}
+
+@keyframes modalZoom {
+    from { opacity: 0; transform: scale(0.95) translateY(8px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+@keyframes backdropFade {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.modal-header-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 24px;
+    background: var(--background-element-color);
+    border-bottom: 1px solid var(--border-subtle);
+}
+
+.modal-header-bar span {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+.modal-close-btn {
+    padding: 6px 14px;
+    border-radius: 6px;
+    border: 1px solid var(--attachment-tag);
+    background: var(--box-color);
+    color: var(--white-color);
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.modal-close-btn:hover {
+    background: var(--button-hover-color);
+}
+
+.modal-body-container {
+    padding: 24px;
+    max-height: calc(88vh - 60px);
+    overflow-y: auto;
+}
+
+.modal-body-container .card {
+    border: none;
+    box-shadow: none;
+    padding: 0;
+    cursor: default;
+    background: transparent;
+}
+
+.modal-body-container .card-title {
+    font-size: 1.5rem;
+}
+
+.modal-body-container .card-desc {
+    font-size: 1.02rem;
+}
+
+.modal-body-container .pin-btn {
+    display: none;
+}
+
+/* ==========================================================================
+   FOOTER AVEC BOUTONS CLASSIQUES (THÈME + TÉLÉCHARGEMENT)
+   ========================================================================== */
+.site-footer {
+    border-top: 1px solid var(--border-subtle);
+    background: var(--background-element-color);
+    padding: 24px 20px;
+    margin-top: auto;
+}
+
+.footer-inner {
+    width: min(100%, 1340px);
+    margin-inline: auto;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+}
+
+.footer-info {
+    font-size: 0.88rem;
+    color: var(--text-muted);
+}
+
+.footer-controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+}
+
+@media print {
+    .toolbar-container, .site-footer, .pin-btn, .copy-btn, .header-back-btn {
+        display: none !important;
+    }
+    .masonry-board {
+        display: block;
+    }
+    .card {
+        break-inside: avoid;
+        margin-bottom: 16px;
+        box-shadow: none;
+        border: 1px solid #ccc;
+    }
+}
+</style>
+</head>
+<body>
+
+<div class="page-wrapper">
+    <header class="site-header">
+        <div class="brand-group">
+            <div class="brand-logo" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
+                    <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path>
+                    <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path>
+                </svg>
+            </div>
+            <div class="brand-titles">
+                <h1>SQL CheatSheet (PostgreSQL)</h1>
+                <p>Fiche de révision complète : requêtes, jointures, agrégations et fonctions</p>
+            </div>
+        </div>
+        <div class="header-stats">
+            <a href="index.html" class="header-back-btn" title="Retourner au portail d'accueil">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="19" y1="12" x2="5" y2="12"></line>
+                    <polyline points="12 19 5 12 12 5"></polyline>
+                </svg>
+                Accueil
+            </a>
+            <span class="stat-pill" id="result-count">Chargement...</span>
+        </div>
+    </header>
+
+    <div class="toolbar-container">
+        <div class="toolbar">
+            <div class="search-row">
+                <div class="search-box">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                    <input type="search" id="search-input" placeholder="Rechercher un mot-clé, une fonction, un exemple (Raccourci : /)">
+                </div>
+                <div class="toolbar-actions">
+                    <button type="button" class="btn" id="title-only-btn" aria-pressed="false" title="Rechercher uniquement dans le nom des commandes">
+                        Titre uniquement
+                    </button>
+                    <button type="button" class="btn" id="pinned-only-btn" aria-pressed="false" disabled title="Afficher uniquement les cartes épinglées pour vos révisions">
+                        Sélection (0)
+                    </button>
+                    <button type="button" class="btn" id="reset-btn" title="Réinitialiser la recherche et les filtres">
+                        Réinitialiser
+                    </button>
+                </div>
+            </div>
+            <div class="category-pills" id="category-pills" role="tablist" aria-label="Filtrer par catégorie">
+                <!-- Généré dynamiquement -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Conteneur Masonry piloté en JS : garantit 0 espace vide et 0 bug de survol -->
+    <main id="results-board" class="masonry-board"></main>
+
+    
+</div>
+
+<!-- Pied de page avec les boutons classiques -->
+<footer class="site-footer">
+    <div class="footer-inner">
+        <div class="footer-info">
+            Fiche mémo SQL (PostgreSQL) — Consultable 100 % hors connexion.
+        </div>
+        <div class="footer-controls">
+            <button type="button" class="btn" id="theme-toggle-btn">
+                Passer au thème clair
+            </button>
+            <button type="button" class="btn" id="top-btn">
+                Remonter en haut
+            </button>
+            <button type="button" class="btn btn-primary-green" id="download-btn">
+                Télécharger la page HTML
+            </button>
+        </div>
+    </div>
+</footer>
+
+<!-- Modale centrée avec arrière-plan flouté -->
+<dialog id="card-modal" aria-label="Détail de la commande">
+    <div class="modal-header-bar">
+        <span>Vue détaillée</span>
+        <button type="button" class="modal-close-btn" id="modal-close-btn">Fermer</button>
+    </div>
+    <div class="modal-body-container" id="modal-body"></div>
+</dialog>
+
+<script>
+const commands = [
+  {
+    "name": "Mots-clés de base : SELECT, FROM, DISTINCT, AS",
+    "category": "Bases SQL",
+    "description": "Récupère des colonnes depuis une table, élimine les doublons et renomme les colonnes affichées.",
+    "options": [
+      [
+        "SELECT col1, col2",
+        "Choisit les colonnes à afficher (* pour toutes les colonnes)."
+      ],
+      [
+        "FROM table",
+        "Indique la table source des données."
+      ],
+      [
+        "DISTINCT",
+        "Supprime les lignes en double dans le résultat."
+      ],
+      [
+        "AS alias",
+        "Renomme une colonne ou une table (les guillemets doubles \" \" gardent les espaces et la casse)."
+      ]
+    ],
+    "examples": [
+      [
+        "SELECT * FROM employe;",
+        "Affiche toutes les colonnes et toutes les lignes de la table employe."
+      ],
+      [
+        "SELECT nom, prenom, salaire FROM employe;",
+        "Affiche uniquement le nom, le prénom et le salaire."
+      ],
+      [
+        "SELECT nom AS \"Nom de famille\", salaire * 12 AS salaire_annuel FROM employe;",
+        "Crée une colonne calculée et renomme l'en-tête."
+      ],
+      [
+        "SELECT DISTINCT departement_id FROM employe;",
+        "Liste chaque département présent sans aucun doublon."
+      ]
+    ],
+    "tip": "En PostgreSQL, les identifiants (noms de colonnes/tables) vont entre guillemets doubles \"Nom\", tandis que les chaînes de texte vont toujours entre apostrophes simples 'Texte'."
+  },
+  {
+    "name": "Filtrer les lignes : WHERE",
+    "category": "Bases SQL",
+    "description": "Filtre les lignes de la table avant tout regroupement. Seules les lignes où la condition est vraie sont conservées.",
+    "tables": [
+      {
+        "caption": "Opérateurs de comparaison et logiques",
+        "headers": [
+          "Opérateur",
+          "Signification",
+          "Exemple"
+        ],
+        "rows": [
+          [
+            "= , != ou <>",
+            "Égal , Différent",
+            "statut = 'actif' , service <> 'RH'"
+          ],
+          [
+            "< , > , <= , >=",
+            "Comparaisons numériques ou de dates",
+            "salaire >= 2500"
+          ],
+          [
+            "AND / OR / NOT",
+            "ET logique / OU logique / Négation",
+            "salaire > 2000 AND ville = 'Toulouse'"
+          ],
+          [
+            "BETWEEN a AND b",
+            "Compris entre a et b (bornes incluses)",
+            "salaire BETWEEN 2000 AND 3000"
+          ],
+          [
+            "IN (v1, v2, ...)",
+            "Égal à l'une des valeurs de la liste",
+            "ville IN ('Paris', 'Lyon', 'Toulouse')"
+          ],
+          [
+            "IS NULL / IS NOT NULL",
+            "Teste si un champ est vide (NULL) ou renseigné",
+            "date_depart IS NULL"
+          ],
+          [
+            "LIKE / ILIKE",
+            "Recherche par motif (% = tout, _ = 1 caractère). ILIKE ignore la casse (PostgreSQL)",
+            "nom ILIKE 'dup%'"
+          ]
+        ]
+      }
+    ],
+    "options": [],
+    "examples": [
+      [
+        "SELECT nom, salaire FROM employe WHERE salaire >= 3000;",
+        "Employés gagnant au moins 3000."
+      ],
+      [
+        "SELECT nom FROM employe WHERE departement_id IN (10, 20) AND manager_id IS NOT NULL;",
+        "Employés des départements 10 ou 20 ayant un manager."
+      ],
+      [
+        "SELECT nom FROM employe WHERE nom LIKE 'M_r%';",
+        "Noms commençant par M, puis 1 caractère quelconque, puis r (ex: Martin, Morel)."
+      ]
+    ],
+    "warning": "Piège classique : on n'écrit JAMAIS `colonne = NULL` ni `colonne != NULL` (cela renvoie toujours inconnu). Utilisez obligatoirement `IS NULL` ou `IS NOT NULL`."
+  },
+  {
+    "name": "Trier et limiter : ORDER BY, LIMIT, OFFSET",
+    "category": "Bases SQL",
+    "description": "Trie les résultats finaux et restreint le nombre de lignes affichées.",
+    "options": [
+      [
+        "ORDER BY col ASC",
+        "Tri croissant (A→Z, 0→9, ancien→récent). Par défaut si rien n'est précisé."
+      ],
+      [
+        "ORDER BY col DESC",
+        "Tri décroissant (Z→A, 9→0, récent→ancien)."
+      ],
+      [
+        "NULLS FIRST / LAST",
+        "Place les valeurs NULL au début ou à la fin du tri (PostgreSQL)."
+      ],
+      [
+        "LIMIT n",
+        "Ne garde que les n premières lignes du résultat."
+      ],
+      [
+        "OFFSET m",
+        "Saute les m premières lignes avant d'afficher la suite."
+      ]
+    ],
+    "examples": [
+      [
+        "SELECT nom, salaire FROM employe ORDER BY salaire DESC;",
+        "Trie du plus gros salaire au plus petit."
+      ],
+      [
+        "SELECT nom, departement_id, salaire FROM employe ORDER BY departement_id ASC, salaire DESC;",
+        "Trie par département croissant, puis par salaire décroissant à l'intérieur de chaque département."
+      ],
+      [
+        "SELECT nom, salaire FROM employe ORDER BY salaire DESC LIMIT 5;",
+        "Affiche le top 5 des plus hauts salaires."
+      ],
+      [
+        "SELECT nom FROM employe ORDER BY id LIMIT 10 OFFSET 20;",
+        "Ignore les 20 premiers et affiche les 10 suivants (page 3)."
+      ]
+    ],
+    "tip": "Dans ORDER BY, vous pouvez utiliser directement les alias définis dans le SELECT (car ORDER BY est exécuté après SELECT)."
+  },
+  {
+    "name": "Ordre d'écriture vs Ordre d'exécution",
+    "category": "Bases SQL",
+    "description": "En SQL, l'ordre dans lequel on écrit les clauses est obligatoire, mais PostgreSQL les exécute dans un ordre différent.",
+    "tables": [
+      {
+        "caption": "Comparaison Écriture / Exécution",
+        "headers": [
+          "Ordre d'écriture obligatoire",
+          "Ordre réel d'exécution par PostgreSQL",
+          "Rôle"
+        ],
+        "rows": [
+          [
+            "1. SELECT",
+            "1. FROM / JOIN",
+            "Charge les tables et réalise les jointures"
+          ],
+          [
+            "2. FROM / JOIN",
+            "2. WHERE",
+            "Filtre les lignes brutes"
+          ],
+          [
+            "3. WHERE",
+            "3. GROUP BY",
+            "Forme les groupes de lignes"
+          ],
+          [
+            "4. GROUP BY",
+            "4. HAVING",
+            "Filtre les groupes (sur fonctions d'agrégation)"
+          ],
+          [
+            "5. HAVING",
+            "5. SELECT",
+            "Calcule les expressions et crée les alias (AS)"
+          ],
+          [
+            "6. ORDER BY",
+            "6. DISTINCT",
+            "Élimine les lignes dupliquées"
+          ],
+          [
+            "7. LIMIT / OFFSET",
+            "7. ORDER BY puis LIMIT",
+            "Trie et découpe l'affichage final"
+          ]
+        ]
+      }
+    ],
+    "options": [],
+    "examples": [
+      [
+        "SELECT departement_id, AVG(salaire) AS moy\nFROM employe\nWHERE statut = 'actif'\nGROUP BY departement_id\nHAVING AVG(salaire) > 2500\nORDER BY moy DESC\nLIMIT 5;",
+        "Requête complète respectant scrupuleusement l'ordre des clauses."
+      ]
+    ],
+    "warning": "Comme WHERE et HAVING sont exécutés AVANT SELECT, vous ne pouvez pas utiliser un alias créé avec AS dans WHERE ni dans HAVING. En revanche, vous pouvez l'utiliser dans ORDER BY."
+  },
+  {
+    "name": "Fonctions d'agrégation : COUNT, SUM, AVG, MIN, MAX",
+    "category": "Agrégations",
+    "description": "Calculent une valeur unique (somme, moyenne, comptage...) à partir d'un ensemble de lignes.",
+    "options": [
+      [
+        "COUNT(*)",
+        "Compte le nombre total de lignes (y compris celles contenant des NULL)."
+      ],
+      [
+        "COUNT(col)",
+        "Compte le nombre de lignes où `col` n'est PAS NULL."
+      ],
+      [
+        "COUNT(DISTINCT col)",
+        "Compte le nombre de valeurs différentes (non nulles) dans `col`."
+      ],
+      [
+        "SUM(col)",
+        "Calcule la somme des valeurs numériques."
+      ],
+      [
+        "AVG(col)",
+        "Calcule la moyenne arithmétique (ignore les valeurs NULL)."
+      ],
+      [
+        "MIN(col) / MAX(col)",
+        "Renvoie la plus petite / la plus grande valeur (nombres, textes ou dates)."
+      ],
+      [
+        "STRING_AGG(col, ', ')",
+        "Concatène les valeurs de plusieurs lignes en une seule chaîne (PostgreSQL)."
+      ]
+    ],
+    "examples": [
+      [
+        "SELECT COUNT(*) AS total, COUNT(commission) AS avec_comm FROM employe;",
+        "Compare le nombre total d'employés et ceux qui touchent une commission."
+      ],
+      [
+        "SELECT MIN(salaire), MAX(salaire), ROUND(AVG(salaire), 2) AS moyenne FROM employe;",
+        "Affiche le salaire min, max et moyen arrondi à 2 décimales."
+      ],
+      [
+        "SELECT SUM(montant) FROM commande WHERE date_cmd >= '2026-01-01';",
+        "Chiffre d'affaires total depuis début 2026."
+      ],
+      [
+        "SELECT STRING_AGG(nom, ', ' ORDER BY nom) FROM employe;",
+        "Renvoie tous les noms sur une seule ligne séparés par une virgule."
+      ]
+    ],
+    "tip": "Les fonctions d'agrégation ignorent automatiquement les valeurs NULL (sauf COUNT(*))."
+  },
+  {
+    "name": "Regrouper et filtrer : GROUP BY et HAVING",
+    "category": "Agrégations",
+    "description": "GROUP BY découpe la table en sous-groupes pour calculer des agrégations par catégorie. HAVING filtre les groupes obtenus.",
+    "options": [
+      [
+        "GROUP BY col1, col2",
+        "Crée un groupe pour chaque combinaison unique de valeurs."
+      ],
+      [
+        "WHERE vs HAVING",
+        "WHERE filtre les lignes AVANT le regroupement ; HAVING filtre les groupes APRÈS le GROUP BY."
+      ]
+    ],
+    "examples": [
+      [
+        "SELECT departement_id, COUNT(*) AS nb_emp, AVG(salaire) AS sal_moyen\nFROM employe\nGROUP BY departement_id;",
+        "Affiche l'effectif et le salaire moyen de chaque département."
+      ],
+      [
+        "SELECT departement_id, COUNT(*) AS nb_emp\nFROM employe\nWHERE salaire > 2000\nGROUP BY departement_id\nHAVING COUNT(*) >= 5;",
+        "Ne compte que les employés gagnant > 2000 (WHERE), et n'affiche que les départements qui en comptent au moins 5 (HAVING)."
+      ]
+    ],
+    "warning": "Règle absolue : toute colonne présente dans le SELECT qui n'est pas à l'intérieur d'une fonction d'agrégation (COUNT, SUM, AVG...) DOIT obligatoirement figurer dans le GROUP BY."
+  },
+  {
+    "name": "Jointures : INNER, LEFT, RIGHT, FULL, SELF",
+    "category": "Jointures",
+    "description": "Relie plusieurs tables entre elles (souvent entre une clé étrangère et une clé primaire) pour croiser les informations.",
+    "tables": [
+      {
+        "caption": "Les types de jointures SQL",
+        "headers": [
+          "Type de jointure",
+          "Résultat obtenu"
+        ],
+        "rows": [
+          [
+            "INNER JOIN (ou JOIN)",
+            "Ne garde que les lignes ayant une correspondance dans les DEUX tables."
+          ],
+          [
+            "LEFT JOIN (ou LEFT OUTER JOIN)",
+            "Garde TOUTES les lignes de la table de gauche (met NULL à droite s'il n'y a pas de correspondance)."
+          ],
+          [
+            "RIGHT JOIN",
+            "Garde TOUTES les lignes de la table de droite (met NULL à gauche si pas de correspondance)."
+          ],
+          [
+            "FULL OUTER JOIN",
+            "Garde toutes les lignes des deux tables, avec ou sans correspondance."
+          ],
+          [
+            "CROSS JOIN",
+            "Produit cartésien : associe chaque ligne de A avec chaque ligne de B (sans ON)."
+          ],
+          [
+            "Auto-jointure (Self Join)",
+            "Joint une table avec elle-même en utilisant 2 alias différents (ex: employé et son manager)."
+          ]
+        ]
+      }
+    ],
+    "options": [
+      [
+        "ON t1.col = t2.col",
+        "Condition de jointure standard (fonctionne même si les colonnes ont des noms différents)."
+      ],
+      [
+        "USING (col)",
+        "Raccourci si la colonne de jointure porte exactement le même nom dans les deux tables."
+      ]
+    ],
+    "examples": [
+      [
+        "SELECT e.nom, d.libelle\nFROM employe e\nINNER JOIN departement d ON e.departement_id = d.id;",
+        "Affiche chaque employé avec le nom de son département (exclut les employés sans département)."
+      ],
+      [
+        "SELECT e.nom, d.libelle\nFROM employe e\nLEFT JOIN departement d ON e.departement_id = d.id;",
+        "Affiche TOUS les employés, même ceux qui n'ont pas de département."
+      ],
+      [
+        "SELECT d.libelle\nFROM departement d\nLEFT JOIN employe e ON d.id = e.departement_id\nWHERE e.id IS NULL;",
+        "Astuce anti-jointure : trouve les départements qui n'ont AUCUN employé."
+      ],
+      [
+        "SELECT emp.nom AS employe, mgr.nom AS manager\nFROM employe emp\nLEFT JOIN employe mgr ON emp.manager_id = mgr.id;",
+        "Auto-jointure : affiche chaque employé et le nom de son chef."
+      ]
+    ]
+  },
+  {
+    "name": "Fonctions de dates et TO_CHAR",
+    "category": "Fonctions",
+    "description": "Formatage, extraction et calculs sur les dates et heures sous PostgreSQL.",
+    "tables": [
+      {
+        "caption": "Motifs de formatage pour TO_CHAR / TO_DATE",
+        "headers": [
+          "Motif",
+          "Signification",
+          "Exemple"
+        ],
+        "rows": [
+          [
+            "YYYY / YY",
+            "Année sur 4 ou 2 chiffres",
+            "2026 / 26"
+          ],
+          [
+            "MM / MON / TMMonth",
+            "Mois en chiffres / abrégé / complet traduit",
+            "11 / NOV / Novembre"
+          ],
+          [
+            "DD / DY / TMDay",
+            "Jour du mois (01-31) / jour abrégé / nom du jour traduit",
+            "16 / LUN / Lundi"
+          ],
+          [
+            "HH24:MI:SS",
+            "Heure (format 24h), minutes, secondes",
+            "14:35:00"
+          ]
+        ]
+      }
+    ],
+    "options": [
+      [
+        "CURRENT_DATE / NOW()",
+        "Date du jour seule / Date et heure actuelles avec fuseau."
+      ],
+      [
+        "TO_CHAR(date, 'format')",
+        "Convertit une date (ou un nombre) en texte formaté."
+      ],
+      [
+        "TO_DATE(texte, 'format')",
+        "Convertit une chaîne de texte en véritable type DATE."
+      ],
+      [
+        "EXTRACT(champ FROM date)",
+        "Extrait un nombre : YEAR, MONTH, DAY, DOW (jour semaine), HOUR..."
+      ],
+      [
+        "AGE(date1, date2)",
+        "Calcule l'écart en années, mois et jours (AGE(date) compare avec aujourd'hui)."
+      ],
+      [
+        "DATE_TRUNC('unité', date)",
+        "Tronque une date au début du mois ('month'), de l'année ('year'), du jour ('day')..."
+      ],
+      [
+        "+ INTERVAL '1 month'",
+        "Ajoute ou retire une durée (days, months, years, hours)."
+      ]
+    ],
+    "examples": [
+      [
+        "SELECT TO_CHAR(date_embauche, 'DD/MM/YYYY') AS date_fr FROM employe;",
+        "Affiche la date au format français 16/11/2026."
+      ],
+      [
+        "SELECT nom, AGE(CURRENT_DATE, date_embauche) AS anciennete FROM employe;",
+        "Calcule l'ancienneté exacte (ex: 4 years 2 mons 10 days)."
+      ],
+      [
+        "SELECT nom FROM employe WHERE EXTRACT(YEAR FROM date_embauche) = 2024;",
+        "Employés embauchés en 2024."
+      ],
+      [
+        "SELECT CURRENT_DATE + INTERVAL '15 days';",
+        "Calcule la date dans 15 jours."
+      ]
+    ]
+  },
+  {
+    "name": "Fonctions sur les chaînes de caractères",
+    "category": "Fonctions",
+    "description": "Concaténation, découpage, nettoyage et transformation de texte.",
+    "options": [
+      [
+        "col1 || ' ' || col2",
+        "Opérateur de concaténation (Attention : si l'un est NULL, tout devient NULL)."
+      ],
+      [
+        "CONCAT(a, b, ...)",
+        "Concatène plusieurs textes en ignorant les valeurs NULL."
+      ],
+      [
+        "UPPER(s) / LOWER(s) / INITCAP(s)",
+        "Tout en MAJUSCULES / minuscules / Première Lettre En Majuscule."
+      ],
+      [
+        "LENGTH(s)",
+        "Renvoie le nombre de caractères de la chaîne."
+      ],
+      [
+        "SUBSTRING(s FROM pos FOR len)",
+        "Extrait une sous-chaîne (en SQL, le 1er caractère est à la position 1)."
+      ],
+      [
+        "LEFT(s, n) / RIGHT(s, n)",
+        "Garde les n premiers / n derniers caractères."
+      ],
+      [
+        "TRIM(s)",
+        "Supprime les espaces inutiles au début et à la fin."
+      ],
+      [
+        "REPLACE(s, 'ancien', 'nouveau')",
+        "Remplace toutes les occurrences d'un texte par un autre."
+      ]
+    ],
+    "examples": [
+      [
+        "SELECT UPPER(nom) || ' ' || INITCAP(prenom) AS identite FROM employe;",
+        "Affiche par exemple 'DUPONT Jean'."
+      ],
+      [
+        "SELECT SUBSTRING(code_postal FROM 1 FOR 2) AS departement FROM client;",
+        "Extrait les 2 premiers chiffres du code postal."
+      ],
+      [
+        "SELECT REPLACE(telephone, '.', ' ') FROM client;",
+        "Remplace les points par des espaces dans les numéros."
+      ]
+    ]
+  },
+  {
+    "name": "Fonctions numériques, NULL et Conditions (CASE, COALESCE)",
+    "category": "Fonctions",
+    "description": "Arrondis, remplacement des valeurs NULL, conversions de types et conditions IF/ELSE dans les requêtes.",
+    "options": [
+      [
+        "COALESCE(v1, v2, defaut)",
+        "Renvoie la première valeur NON NULL de la liste (idéal pour remplacer NULL par 0 ou 'Inconnu')."
+      ],
+      [
+        "NULLIF(a, b)",
+        "Renvoie NULL si a = b, sinon renvoie a (évite la division par zéro : `x / NULLIF(y, 0)`)."
+      ],
+      [
+        "ROUND(n, dec)",
+        "Arrondit à `dec` chiffres après la virgule."
+      ],
+      [
+        "CEIL(n) / FLOOR(n) / TRUNC(n)",
+        "Arrondi à l'entier supérieur / inférieur / troncature."
+      ],
+      [
+        "CAST(val AS type) ou val::type",
+        "Convertit une valeur dans un autre type (`'42'::INT`, `salaire::TEXT`)."
+      ],
+      [
+        "CASE WHEN ... THEN ... ELSE ... END",
+        "Permet de faire des conditions (if / else) directement dans un SELECT."
+      ]
+    ],
+    "examples": [
+      [
+        "SELECT nom, salaire + COALESCE(commission, 0) AS revenu_total FROM employe;",
+        "Si commission est NULL, elle est remplacée par 0 pour ne pas fausser l'addition."
+      ],
+      [
+        "SELECT nom, salaire,\n  CASE\n    WHEN salaire >= 4000 THEN 'Cadre sup'\n    WHEN salaire >= 2500 THEN ' Confirmé'\n    ELSE 'Junior'\n  END AS categorie\nFROM employe;",
+        "Crée une colonne catégorielle selon le niveau de salaire."
+      ]
+    ],
+    "warning": "En SQL, `3000 + NULL` donne `NULL` ! Utilisez toujours `COALESCE(colonne, 0)` lorsque vous additionnez des colonnes pouvant contenir des NULL."
+  },
+  {
+    "name": "Sous-requêtes et CTE (WITH)",
+    "category": "Requêtes avancées",
+    "description": "Imbriquer une requête dans une autre ou structurer une requête complexe avec des tables temporaires nommées.",
+    "options": [
+      [
+        "WHERE col IN (SELECT ...)",
+        "Compare une colonne à une liste de valeurs renvoyée par une sous-requête."
+      ],
+      [
+        "WHERE col > ALL / ANY (SELECT ...)",
+        "Compare à toutes les valeurs (ALL) ou à au moins une valeur (ANY) de la sous-requête."
+      ],
+      [
+        "WHERE EXISTS (SELECT 1 ...)",
+        "Renvoie vrai si la sous-requête retourne au moins une ligne."
+      ],
+      [
+        "WITH nom AS (SELECT ...)",
+        "CTE (Common Table Expression) : définit une table temporaire lisible utilisable juste après."
+      ]
+    ],
+    "examples": [
+      [
+        "SELECT nom, salaire FROM employe\nWHERE salaire > (SELECT AVG(salaire) FROM employe);",
+        "Affiche les employés qui gagnent plus que la moyenne de l'entreprise."
+      ],
+      [
+        "WITH moy_dept AS (\n  SELECT departement_id, AVG(salaire) AS moy\n  FROM employe\n  GROUP BY departement_id\n)\nSELECT e.nom, e.salaire, m.moy\nFROM employe e\nJOIN moy_dept m ON e.departement_id = m.departement_id\nWHERE e.salaire > m.moy;",
+        "Trouve les employés qui gagnent plus que la moyenne de leur propre département."
+      ]
+    ],
+    "warning": "Piège : `WHERE col NOT IN (SELECT ...)` ne renvoie AUCUNE ligne si la sous-requête contient ne serait-ce qu'une seule valeur `NULL`. Utilisez `NOT EXISTS` ou filtrez `WHERE x IS NOT NULL` dans la sous-requête."
+  },
+  {
+    "name": "Opérateurs ensemblistes : UNION, INTERSECT, EXCEPT",
+    "category": "Requêtes avancées",
+    "description": "Combine verticalement les résultats de deux requêtes SELECT (qui doivent avoir le même nombre de colonnes et des types compatibles).",
+    "options": [
+      [
+        "UNION",
+        "Fusionne les résultats des 2 requêtes en supprimant les doublons."
+      ],
+      [
+        "UNION ALL",
+        "Fusionne les résultats en gardant tous les doublons (beaucoup plus rapide)."
+      ],
+      [
+        "INTERSECT",
+        "Garde uniquement les lignes communes aux deux requêtes."
+      ],
+      [
+        "EXCEPT (ou MINUS sous Oracle)",
+        "Garde les lignes de la 1re requête qui ne sont PAS dans la 2nde."
+      ]
+    ],
+    "examples": [
+      [
+        "SELECT nom, email FROM client_actuel\nUNION\nSELECT nom, email FROM ancien_client;",
+        "Liste unifiée sans doublon de tous les clients."
+      ],
+      [
+        "SELECT id_produit FROM produit\nEXCEPT\nSELECT DISTINCT id_produit FROM ligne_commande;",
+        "Trouve les produits qui n'ont jamais été commandés."
+      ]
+    ]
+  },
+  {
+    "name": "Modifier les données : INSERT, UPDATE, DELETE",
+    "category": "Données (DML)",
+    "description": "Ajoute, met à jour ou supprime des lignes dans une table.",
+    "options": [
+      [
+        "INSERT INTO t (c1, c2) VALUES (...)",
+        "Insère une ou plusieurs lignes nouvelles."
+      ],
+      [
+        "INSERT INTO t SELECT ...",
+        "Insère dans une table le résultat d'une requête SELECT."
+      ],
+      [
+        "UPDATE t SET c1 = val WHERE ...",
+        "Modifie la valeur des colonnes pour les lignes filtrées."
+      ],
+      [
+        "DELETE FROM t WHERE ...",
+        "Supprime les lignes correspondant au filtre."
+      ],
+      [
+        "TRUNCATE TABLE t",
+        "Vide instantanément toute la table."
+      ],
+      [
+        "RETURNING *",
+        "Spécificité PostgreSQL : affiche les lignes qui viennent d'être insérées, modifiées ou supprimées."
+      ]
+    ],
+    "examples": [
+      [
+        "INSERT INTO employe (nom, prenom, salaire)\nVALUES ('Martin', 'Alice', 3200), ('Bernard', 'Luc', 2800)\nRETURNING id, nom;",
+        "Insère 2 employés d'un coup et renvoie leurs ID générés."
+      ],
+      [
+        "UPDATE employe\nSET salaire = salaire * 1.05\nWHERE departement_id = 3;",
+        "Augmente de 5 % les salaires du département 3."
+      ],
+      [
+        "DELETE FROM employe WHERE date_depart < '2020-01-01';",
+        "Supprime les anciens employés partis avant 2020."
+      ]
+    ],
+    "warning": "N'oubliez jamais la clause WHERE sur un UPDATE ou un DELETE ! Sans WHERE, toutes les lignes de la table seront modifiées ou effacées."
+  },
+  {
+    "name": "Créer et modifier les tables : CREATE, ALTER, DROP",
+    "category": "Structure (DDL)",
+    "description": "Définit la structure des tables, les types de colonnes et les contraintes d'intégrité.",
+    "tables": [
+      {
+        "caption": "Types principaux sous PostgreSQL",
+        "headers": [
+          "Type",
+          "Usage"
+        ],
+        "rows": [
+          [
+            "SERIAL ou INT GENERATED ALWAYS AS IDENTITY",
+            "Entier auto-incrémenté pour clé primaire"
+          ],
+          [
+            "INTEGER (ou INT) / BIGINT",
+            "Nombres entiers"
+          ],
+          [
+            "NUMERIC(p, s) ou DECIMAL(p, s)",
+            "Nombre décimal exact (ex: NUMERIC(10,2) pour un prix ou salaire)"
+          ],
+          [
+            "VARCHAR(n) / CHAR(n) / TEXT",
+            "Texte limité à n caractères / fixe / texte illimité"
+          ],
+          [
+            "DATE / TIMESTAMP / TIME",
+            "Date seule (AAAA-MM-JJ) / Date + heure / Heure seule"
+          ],
+          [
+            "BOOLEAN",
+            "Booléen (TRUE, FALSE, NULL)"
+          ]
+        ]
+      }
+    ],
+    "options": [
+      [
+        "PRIMARY KEY",
+        "Clé primaire : identifie chaque ligne de façon unique (implique UNIQUE + NOT NULL)."
+      ],
+      [
+        "REFERENCES table(id)",
+        "Clé étrangère (FOREIGN KEY) : pointe vers la clé primaire d'une autre table."
+      ],
+      [
+        "ON DELETE CASCADE / SET NULL",
+        "Action automatique si la ligne parente est supprimée."
+      ],
+      [
+        "NOT NULL / UNIQUE / DEFAULT x",
+        "Valeur obligatoire / valeur unique / valeur par défaut."
+      ],
+      [
+        "CHECK (condition)",
+        "Vérifie une règle métier (ex: `CHECK (salaire > 0)`)."
+      ]
+    ],
+    "examples": [
+      [
+        "CREATE TABLE employe (\n  id SERIAL PRIMARY KEY,\n  nom VARCHAR(50) NOT NULL,\n  email VARCHAR(100) UNIQUE,\n  salaire NUMERIC(10,2) DEFAULT 2000 CHECK (salaire > 0),\n  departement_id INT REFERENCES departement(id) ON DELETE SET NULL\n);",
+        "Création d'une table complète avec clés et contraintes."
+      ],
+      [
+        "ALTER TABLE employe ADD COLUMN telephone VARCHAR(20);",
+        "Ajoute une nouvelle colonne à la table."
+      ],
+      [
+        "ALTER TABLE employe ALTER COLUMN salaire SET NOT NULL;",
+        "Ajoute une contrainte NOT NULL sur une colonne existante."
+      ],
+      [
+        "DROP TABLE IF EXISTS employe CASCADE;",
+        "Supprime la table et ses dépendances."
+      ]
+    ]
+  },
+  {
+    "name": "Vues, Index et Transactions",
+    "category": "Structure (DDL)",
+    "description": "Sauvegarder des requêtes sous forme de vues, accélérer les recherches et sécuriser les modifications.",
+    "options": [
+      [
+        "CREATE OR REPLACE VIEW v AS ...",
+        "Crée une table virtuelle basée sur une requête SELECT."
+      ],
+      [
+        "CREATE INDEX idx ON t(col)",
+        "Crée un index pour accélérer les recherches (WHERE / JOIN) sur cette colonne."
+      ],
+      [
+        "BEGIN (ou START TRANSACTION)",
+        "Démarre une transaction (bloc d'opérations atomique)."
+      ],
+      [
+        "COMMIT",
+        "Valide définitivement toutes les modifications de la transaction."
+      ],
+      [
+        "ROLLBACK",
+        "Annule toutes les modifications effectuées depuis le BEGIN."
+      ]
+    ],
+    "examples": [
+      [
+        "CREATE OR REPLACE VIEW v_emp_actifs AS\nSELECT id, nom, salaire FROM employe WHERE date_depart IS NULL;",
+        "Crée une vue réutilisable dans un SELECT comme une table normale."
+      ],
+      [
+        "BEGIN;\nUPDATE compte SET solde = solde - 100 WHERE id = 1;\nUPDATE compte SET solde = solde + 100 WHERE id = 2;\nCOMMIT;",
+        "Transaction bancaire : soit les deux UPDATE réussissent, soit aucun (avec ROLLBACK)."
+      ]
+    ]
+  },
+  {
+    "name": "Commandes utiles du terminal : psql",
+    "category": "Console psql",
+    "description": "Méta-commandes propres au client en ligne de commande `psql` de PostgreSQL (commencent par un antislash `\\`).",
+    "options": [
+      [
+        "psql -U user -d base -h hote",
+        "Se connecter à PostgreSQL depuis le terminal Linux."
+      ],
+      [
+        "\\l",
+        "Lister toutes les bases de données du serveur."
+      ],
+      [
+        "\\c nom_base",
+        "Se connecter (changer) vers une autre base de données."
+      ],
+      [
+        "\\dt",
+        "Lister toutes les tables du schéma courant."
+      ],
+      [
+        "\\d nom_table",
+        "Afficher le détail (colonnes, types, index, clés) d'une table."
+      ],
+      [
+        "\\dv / \\du",
+        "Lister les vues / Lister les utilisateurs (rôles)."
+      ],
+      [
+        "\\i fichier.sql",
+        "Exécuter toutes les requêtes contenues dans un fichier `.sql`."
+      ],
+      [
+        "\\x",
+        "Activer/désactiver l'affichage vertical (très lisible quand il y a beaucoup de colonnes)."
+      ],
+      [
+        "\\q",
+        "Quitter psql."
+      ]
+    ],
+    "examples": [
+      [
+        "psql -U postgres -d entreprise",
+        "Ouvre une session interactive sur la base 'entreprise'."
+      ],
+      [
+        "\\d employe",
+        "Vérifie rapidement le nom exact et le type des colonnes de la table employe."
+      ]
+    ],
+    "tip": "Dans psql, n'oubliez jamais le point-virgule `;` à la fin d'une requête SQL ! Tant que vous ne tapez pas `;`, psql attend la suite de la requête (l'invite affiche `(-` au lieu de `=>`)."
+  }
+];
+const commandKinds = {
+  "Mots-clés de base : SELECT, FROM, DISTINCT, AS": "clause",
+  "Filtrer les lignes : WHERE": "clause",
+  "Trier et limiter : ORDER BY, LIMIT, OFFSET": "clause",
+  "Ordre d'écriture vs Ordre d'exécution": "concept",
+  "Fonctions d'agrégation : COUNT, SUM, AVG, MIN, MAX": "fonction",
+  "Regrouper et filtrer : GROUP BY et HAVING": "clause",
+  "Jointures : INNER, LEFT, RIGHT, FULL, SELF": "jointure",
+  "Fonctions de dates et TO_CHAR": "fonction",
+  "Fonctions sur les chaînes de caractères": "fonction",
+  "Fonctions numériques, NULL et Conditions (CASE, COALESCE)": "fonction",
+  "Sous-requêtes et CTE (WITH)": "syntaxe",
+  "Opérateurs ensemblistes : UNION, INTERSECT, EXCEPT": "opérateur",
+  "Modifier les données : INSERT, UPDATE, DELETE": "DML",
+  "Créer et modifier les tables : CREATE, ALTER, DROP": "DDL",
+  "Vues, Index et Transactions": "DDL / TCL",
+  "Commandes utiles du terminal : psql": "psql"
+};
+const kindHints = {
+  "clause": "Clause SQL fondamentale.",
+  "concept": "Règle essentielle du langage SQL.",
+  "fonction": "Fonction SQL / PostgreSQL.",
+  "jointure": "Association entre plusieurs tables.",
+  "syntaxe": "Construction avancée SQL.",
+  "opérateur": "Opérateur ensembliste SQL.",
+  "DML": "Manipulation des données (Data Manipulation Language).",
+  "DDL": "Définition de la structure (Data Definition Language).",
+  "DDL / TCL": "Structure et contrôle des transactions.",
+  "psql": "Commande interne au client terminal PostgreSQL."
+};
+const searchAliases = {
+  "Mots-clés de base : SELECT, FROM, DISTINCT, AS": [
+    "select",
+    "from",
+    "distinct",
+    "alias",
+    "doublon",
+    "afficher",
+    "colonne"
+  ],
+  "Filtrer les lignes : WHERE": [
+    "where",
+    "filtre",
+    "condition",
+    "like",
+    "ilike",
+    "between",
+    "in",
+    "null",
+    "is null",
+    "egal",
+    "different"
+  ],
+  "Trier et limiter : ORDER BY, LIMIT, OFFSET": [
+    "order by",
+    "trier",
+    "tri",
+    "croissant",
+    "decroissant",
+    "asc",
+    "desc",
+    "limit",
+    "offset",
+    "top"
+  ],
+  "Ordre d'écriture vs Ordre d'exécution": [
+    "ordre",
+    "execution",
+    "logique",
+    "priorite",
+    "erreur alias"
+  ],
+  "Fonctions d'agrégation : COUNT, SUM, AVG, MIN, MAX": [
+    "agregation",
+    "compter",
+    "somme",
+    "moyenne",
+    "minimum",
+    "maximum",
+    "count",
+    "sum",
+    "avg",
+    "min",
+    "max",
+    "string_agg"
+  ],
+  "Regrouper et filtrer : GROUP BY et HAVING": [
+    "group by",
+    "having",
+    "regrouper",
+    "groupe",
+    "categorie",
+    "par"
+  ],
+  "Jointures : INNER, LEFT, RIGHT, FULL, SELF": [
+    "join",
+    "inner join",
+    "left join",
+    "right join",
+    "full join",
+    "cross join",
+    "jointure",
+    "lier",
+    "tables",
+    "using",
+    "on"
+  ],
+  "Fonctions de dates et TO_CHAR": [
+    "date",
+    "to_char",
+    "to_date",
+    "extract",
+    "age",
+    "now",
+    "current_date",
+    "interval",
+    "annee",
+    "mois",
+    "jour",
+    "heure",
+    "format"
+  ],
+  "Fonctions sur les chaînes de caractères": [
+    "texte",
+    "chaine",
+    "concat",
+    "substring",
+    "upper",
+    "lower",
+    "initcap",
+    "length",
+    "trim",
+    "replace",
+    "majuscule",
+    "minuscule"
+  ],
+  "Fonctions numériques, NULL et Conditions (CASE, COALESCE)": [
+    "coalesce",
+    "nullif",
+    "case",
+    "when",
+    "then",
+    "else",
+    "end",
+    "round",
+    "arrondi",
+    "cast",
+    "conversion",
+    "condition"
+  ],
+  "Sous-requêtes et CTE (WITH)": [
+    "sous-requete",
+    "subquery",
+    "with",
+    "cte",
+    "exists",
+    "not in",
+    "all",
+    "any",
+    "imbriquee"
+  ],
+  "Opérateurs ensemblistes : UNION, INTERSECT, EXCEPT": [
+    "union",
+    "intersect",
+    "except",
+    "minus",
+    "ensemble",
+    "fusionner"
+  ],
+  "Modifier les données : INSERT, UPDATE, DELETE": [
+    "insert",
+    "update",
+    "delete",
+    "truncate",
+    "returning",
+    "ajouter",
+    "modifier",
+    "supprimer",
+    "vider"
+  ],
+  "Créer et modifier les tables : CREATE, ALTER, DROP": [
+    "create table",
+    "alter table",
+    "drop table",
+    "primary key",
+    "foreign key",
+    "references",
+    "serial",
+    "varchar",
+    "numeric",
+    "check",
+    "default",
+    "contrainte"
+  ],
+  "Vues, Index et Transactions": [
+    "view",
+    "vue",
+    "index",
+    "transaction",
+    "begin",
+    "commit",
+    "rollback"
+  ],
+  "Commandes utiles du terminal : psql": [
+    "psql",
+    "console",
+    "terminal",
+    "meta",
+    "dt",
+    "connecter",
+    "quitter"
+  ]
+};
+
+// État de l'application
+let activeCategory = "";
+let titleOnly = false;
+let pinnedOnly = false;
+const pinnedSet = new Set();
+
+const board = document.getElementById("results-board");
+const searchInput = document.getElementById("search-input");
+const countEl = document.getElementById("result-count");
+const titleOnlyBtn = document.getElementById("title-only-btn");
+const pinnedOnlyBtn = document.getElementById("pinned-only-btn");
+const resetBtn = document.getElementById("reset-btn");
+const categoryPillsEl = document.getElementById("category-pills");
+const themeToggleBtn = document.getElementById("theme-toggle-btn");
+const topBtn = document.getElementById("top-btn");
+const downloadBtn = document.getElementById("download-btn");
+const modal = document.getElementById("card-modal");
+const modalBody = document.getElementById("modal-body");
+const modalCloseBtn = document.getElementById("modal-close-btn");
+
+// Normalisation sans accents pour une recherche souple
+function norm(str) {
+    return (str || "").normalize("NFD").replace(/\p{M}/gu, "").toLocaleLowerCase("fr");
+}
+
+function escapeRegExp(val) {
+    return val.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+const ACCENT_MAP = {
+    "a": "[aàáâãäå]",
+    "e": "[eèéêë]",
+    "i": "[iìíîï]",
+    "o": "[oòóôõö]",
+    "u": "[uùúûü]",
+    "c": "[cç]",
+    "n": "[nñ]",
+    "y": "[yýÿ]"
+};
+
+function buildAccentPattern(term) {
+    const normTerm = term.normalize("NFD").replace(/\p{M}/gu, "");
+    let pattern = "";
+    for (const ch of normTerm) {
+        const lower = ch.toLowerCase();
+        if (ACCENT_MAP[lower]) {
+            pattern += ACCENT_MAP[lower];
+        } else if (/[.*+?^${}()|[\]\\]/.test(ch)) {
+            pattern += "\\" + ch;
+        } else {
+            pattern += ch;
+        }
+    }
+    return pattern;
+}
+
+function highlightText(container, text, query) {
+    const terms = query.trim().split(/\s+/).filter(Boolean);
+    if (!terms.length) {
+        container.textContent = text;
+        return;
+    }
+    const patterns = terms.map(buildAccentPattern).filter(Boolean);
+    if (!patterns.length) {
+        container.textContent = text;
+        return;
+    }
+    const regex = new RegExp("(" + patterns.join("|") + ")", "gi");
+    let lastIdx = 0;
+    for (const match of text.matchAll(regex)) {
+        const idx = match.index;
+        if (idx > lastIdx) {
+            container.appendChild(document.createTextNode(text.slice(lastIdx, idx)));
+        }
+        const mark = document.createElement("mark");
+        mark.textContent = match[0];
+        container.appendChild(mark);
+        lastIdx = idx + match[0].length;
+    }
+    if (lastIdx < text.length) {
+        container.appendChild(document.createTextNode(text.slice(lastIdx)));
+    }
+}
+
+// Initialisation des pilules de catégories
+const categories = ["Toutes", ...Array.from(new Set(commands.map(c => c.category)))];
+function renderCategories() {
+    categoryPillsEl.replaceChildren();
+    categories.forEach(cat => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        const isAll = cat === "Toutes";
+        const isActive = (isAll && !activeCategory) || cat === activeCategory;
+        btn.className = "cat-pill" + (isActive ? " active" : "");
+        btn.textContent = cat;
+        btn.onclick = () => {
+            activeCategory = isAll ? "" : cat;
+            renderCategories();
+            renderBoard();
+        };
+        categoryPillsEl.appendChild(btn);
+    });
+}
+
+// Calcul du nombre de colonnes selon la largeur de l'écran (1 colonne sur mobile/tablette < 900px, 2 max sur grand écran)
+function getColumnCount() {
+    const w = window.innerWidth;
+    if (w < 900) return 1;
+    return 2;
+}
+
+// Construction d'un tableau HTML pour les cartes qui en possèdent
+function buildTableElement(tableData, rawQuery) {
+    const wrap = document.createElement("div");
+    wrap.className = "table-wrap";
+    const table = document.createElement("table");
+    if (tableData.caption) {
+        const cap = document.createElement("caption");
+        highlightText(cap, tableData.caption, rawQuery);
+        table.appendChild(cap);
+    }
+    const thead = document.createElement("thead");
+    const trHead = document.createElement("tr");
+    tableData.headers.forEach(h => {
+        const th = document.createElement("th");
+        highlightText(th, h, rawQuery);
+        trHead.appendChild(th);
+    });
+    thead.appendChild(trHead);
+    table.appendChild(thead);
+
+    const tbody = document.createElement("tbody");
+    tableData.rows.forEach(row => {
+        const tr = document.createElement("tr");
+        row.forEach((cellText, idx) => {
+            const cell = document.createElement(idx === 0 ? "th" : "td");
+            highlightText(cell, cellText, rawQuery);
+            tr.appendChild(cell);
+        });
+        tbody.appendChild(tr);
+    });
+    table.appendChild(tbody);
+    wrap.appendChild(table);
+    return wrap;
+}
+
+// Copie dans le presse-papiers
+function copyToClipboard(btn, text) {
+    navigator.clipboard.writeText(text).then(() => {
+        const orig = btn.textContent;
+        btn.textContent = "Copié";
+        btn.classList.add("copied");
+        setTimeout(() => {
+            btn.textContent = orig;
+            btn.classList.remove("copied");
+        }, 1300);
+    }).catch(() => {
+        window.prompt("Copiez la commande :", text);
+    });
+}
+
+// Persistance des cartes épinglées
+const PINNED_STORAGE_KEY = "pinned_sql_commands";
+
+function loadPinned() {
+    try {
+        const saved = localStorage.getItem(PINNED_STORAGE_KEY);
+        if (saved) {
+            const arr = JSON.parse(saved);
+            if (Array.isArray(arr)) {
+                arr.forEach(name => pinnedSet.add(name));
+            }
+        }
+    } catch (e) {}
+}
+
+function savePinned() {
+    try {
+        localStorage.setItem(PINNED_STORAGE_KEY, JSON.stringify(Array.from(pinnedSet)));
+    } catch (e) {}
+}
+
+// Création d'une carte DOM complète
+function createCardElement(cmd, rawQuery, isModal = false) {
+    const card = document.createElement("article");
+    card.className = "card" + (pinnedSet.has(cmd.name) ? " pinned" : "");
+    if (isModal) {
+        card.style.cursor = "default";
+        card.style.boxShadow = "none";
+        card.style.border = "none";
+        card.style.background = "transparent";
+        card.style.padding = "0";
+    }
+
+    // En-tête de la carte
+    const header = document.createElement("div");
+    header.className = "card-header";
+
+    const titleGroup = document.createElement("div");
+    titleGroup.className = "card-title-group";
+
+    const title = document.createElement("h2");
+    title.className = "card-title";
+    highlightText(title, cmd.name, rawQuery);
+    titleGroup.appendChild(title);
+
+    const kind = commandKinds[cmd.name];
+    if (kind) {
+        const kBadge = document.createElement("span");
+        kBadge.className = "kind-badge";
+        kBadge.textContent = kind;
+        if (kindHints[kind]) kBadge.title = kindHints[kind];
+        titleGroup.appendChild(kBadge);
+    }
+
+    const badgeGroup = document.createElement("div");
+    badgeGroup.className = "badge-group";
+
+    const cBadge = document.createElement("span");
+    cBadge.className = "cat-badge";
+    cBadge.textContent = cmd.category;
+    badgeGroup.appendChild(cBadge);
+
+    const pinBtn = document.createElement("button");
+    pinBtn.type = "button";
+    pinBtn.className = "pin-btn";
+    pinBtn.title = pinnedSet.has(cmd.name) ? "Retirer de la sélection" : "Épingler cette carte pour réviser";
+    pinBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>';
+    pinBtn.onclick = (e) => {
+        e.stopPropagation();
+        if (pinnedSet.has(cmd.name)) {
+            pinnedSet.delete(cmd.name);
+        } else {
+            pinnedSet.add(cmd.name);
+        }
+        savePinned();
+        updatePinnedUI();
+        if (pinnedOnly) {
+            renderBoard();
+        } else {
+            card.classList.toggle("pinned", pinnedSet.has(cmd.name));
+        }
+    };
+    badgeGroup.appendChild(pinBtn);
+
+    header.append(titleGroup, badgeGroup);
+    card.appendChild(header);
+
+    // Description
+    const desc = document.createElement("p");
+    desc.className = "card-desc";
+    highlightText(desc, cmd.description, rawQuery);
+    card.appendChild(desc);
+
+    // Tableaux éventuels
+    if (cmd.tables && cmd.tables.length) {
+        cmd.tables.forEach(t => card.appendChild(buildTableElement(t, rawQuery)));
+    }
+
+    // Options
+    if (cmd.options && cmd.options.length) {
+        const optWrap = document.createElement("div");
+        const optTitle = document.createElement("div");
+        optTitle.className = "section-label";
+        optTitle.textContent = "Options & Syntaxe";
+        optWrap.appendChild(optTitle);
+
+        const optGrid = document.createElement("div");
+        optGrid.className = "options-grid";
+        cmd.options.forEach(([optKey, optDesc]) => {
+            const row = document.createElement("div");
+            row.className = "opt-row";
+            const k = document.createElement("code");
+            k.className = "opt-key";
+            highlightText(k, optKey, rawQuery);
+            const v = document.createElement("span");
+            v.className = "opt-val";
+            highlightText(v, optDesc, rawQuery);
+            row.append(k, v);
+            optGrid.appendChild(row);
+        });
+        optWrap.appendChild(optGrid);
+        card.appendChild(optWrap);
+    }
+
+    // Exemples
+    if (cmd.examples && cmd.examples.length) {
+        const exWrap = document.createElement("div");
+        const exTitle = document.createElement("div");
+        exTitle.className = "section-label";
+        exTitle.textContent = "Exemples pratiques";
+        exWrap.appendChild(exTitle);
+
+        const exList = document.createElement("div");
+        exList.className = "examples-list";
+        cmd.examples.forEach(([exCode, exExp]) => {
+            const item = document.createElement("div");
+            item.className = "example-item";
+
+            const top = document.createElement("div");
+            top.className = "example-top";
+
+            const codeEl = document.createElement("code");
+            codeEl.className = "example-code";
+            highlightText(codeEl, exCode, rawQuery);
+
+            const copyBtn = document.createElement("button");
+            copyBtn.type = "button";
+            copyBtn.className = "copy-btn";
+            copyBtn.textContent = "Copier";
+            copyBtn.onclick = (e) => {
+                e.stopPropagation();
+                copyToClipboard(copyBtn, exCode);
+            };
+
+            top.append(codeEl, copyBtn);
+
+            const expEl = document.createElement("span");
+            expEl.className = "example-exp";
+            highlightText(expEl, exExp, rawQuery);
+
+            item.append(top, expEl);
+            exList.appendChild(item);
+        });
+        exWrap.appendChild(exList);
+        card.appendChild(exWrap);
+    }
+
+    // Note / Avertissement
+    if (cmd.warning || cmd.tip) {
+        const note = document.createElement("div");
+        note.className = "card-note" + (cmd.warning ? " warning" : "");
+        highlightText(note, cmd.warning || cmd.tip, rawQuery);
+        card.appendChild(note);
+    }
+
+    // Clic sur la carte -> Ouverture de la modale si pas en mode modale, hors boutons/liens/code et sans sélection de texte
+    if (!isModal) {
+        card.addEventListener("click", (e) => {
+            if (e.target.closest("button, a, input, code")) return;
+            const selection = window.getSelection();
+            if (selection && selection.toString().trim().length > 0) return;
+            openCardModal(cmd, rawQuery);
+        });
+    }
+
+    return card;
+}
+
+function openCardModal(cmd, rawQuery) {
+    modalBody.replaceChildren();
+    const detailedCard = createCardElement(cmd, rawQuery, true);
+    modalBody.appendChild(detailedCard);
+    if (!modal.open) {
+        modal.showModal();
+    }
+}
+
+function updatePinnedUI() {
+    pinnedOnlyBtn.textContent = `Sélection (${pinnedSet.size})`;
+    pinnedOnlyBtn.disabled = pinnedSet.size === 0 && !pinnedOnly;
+    pinnedOnlyBtn.setAttribute("aria-pressed", String(pinnedOnly));
+}
+
+// Distribution intelligente dans N colonnes indépendantes :
+// Chaque nouvelle carte est placée dans la colonne la plus courte -> ZÉRO TROU VISUEL
+function renderBoard() {
+    const rawQuery = searchInput.value.trim();
+    const queryNorm = norm(rawQuery);
+    const terms = queryNorm.split(/\s+/).filter(Boolean);
+
+    const filtered = commands.filter(cmd => {
+        if (activeCategory && cmd.category !== activeCategory) return false;
+        if (pinnedOnly && !pinnedSet.has(cmd.name)) return false;
+        if (!terms.length) return true;
+
+        const aliases = (searchAliases[cmd.name] || []).join(" ");
+        const haystack = titleOnly
+            ? norm(cmd.name)
+            : norm(JSON.stringify(cmd) + " " + aliases);
+        return terms.every(t => haystack.includes(t));
+    });
+
+    updatePinnedUI();
+    countEl.innerHTML = `<strong>${filtered.length}</strong> fiche${filtered.length > 1 ? "s" : ""} affichée${filtered.length > 1 ? "s" : ""}`;
+
+    board.replaceChildren();
+
+    if (filtered.length === 0) {
+        board.style.display = "block";
+        const empty = document.createElement("div");
+        empty.className = "empty-state";
+        empty.textContent = "Aucune commande ne correspond à votre recherche. Essayez un autre terme ou réinitialisez les filtres.";
+        board.appendChild(empty);
+        return;
+    }
+
+    board.style.display = "grid";
+    const numCols = getColumnCount();
+    board.style.setProperty("--cols", numCols);
+
+    const colElements = [];
+    const colHeights = [];
+    for (let i = 0; i < numCols; i++) {
+        const col = document.createElement("div");
+        col.className = "masonry-col";
+        board.appendChild(col);
+        colElements.push(col);
+        colHeights.push(0);
+    }
+
+    // Répartition équilibrée selon le poids estimé du contenu de chaque carte
+    filtered.forEach(cmd => {
+        const cardEl = createCardElement(cmd, rawQuery);
+        let minColIndex = 0;
+        for (let i = 1; i < numCols; i++) {
+            if (colHeights[i] < colHeights[minColIndex]) {
+                minColIndex = i;
+            }
+        }
+        colElements[minColIndex].appendChild(cardEl);
+        const estimatedWeight = 120
+            + (cmd.description ? cmd.description.length * 0.5 : 0)
+            + (cmd.options ? cmd.options.length * 36 : 0)
+            + (cmd.examples ? cmd.examples.length * 52 : 0)
+            + (cmd.tables ? cmd.tables.length * 160 : 0)
+            + (cmd.warning || cmd.tip ? 60 : 0);
+        colHeights[minColIndex] += estimatedWeight;
+    });
+}
+
+// Événements de la barre d'outils
+searchInput.addEventListener("input", renderBoard);
+
+titleOnlyBtn.addEventListener("click", () => {
+    titleOnly = !titleOnly;
+    titleOnlyBtn.setAttribute("aria-pressed", String(titleOnly));
+    renderBoard();
+});
+
+pinnedOnlyBtn.addEventListener("click", () => {
+    pinnedOnly = !pinnedOnly;
+    renderBoard();
+});
+
+resetBtn.addEventListener("click", () => {
+    searchInput.value = "";
+    activeCategory = "";
+    titleOnly = false;
+    pinnedOnly = false;
+    pinnedSet.clear();
+    savePinned();
+    titleOnlyBtn.setAttribute("aria-pressed", "false");
+    renderCategories();
+    renderBoard();
+    searchInput.focus();
+});
+
+// Redimensionnement réactif des colonnes
+let lastColCount = getColumnCount();
+window.addEventListener("resize", () => {
+    const currentCols = getColumnCount();
+    if (currentCols !== lastColCount) {
+        lastColCount = currentCols;
+        renderBoard();
+    }
+});
+
+// Gestion de la modale
+modalCloseBtn.addEventListener("click", () => modal.close());
+modal.addEventListener("click", (e) => {
+    if (e.target === modal) modal.close();
+});
+
+// Raccourcis clavier (Navigation rapide examen)
+document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+        if (modal && modal.open) {
+            modal.close();
+        } else if (document.activeElement === searchInput) {
+            if (searchInput.value) {
+                searchInput.value = "";
+                renderBoard();
+            }
+            searchInput.blur();
+        }
+        return;
+    }
+
+    const isSearchShortcut = (e.key === "/" && !["INPUT", "TEXTAREA"].includes(document.activeElement.tagName))
+        || ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k");
+
+    if (isSearchShortcut) {
+        e.preventDefault();
+        searchInput.focus();
+        searchInput.select();
+    }
+});
+
+// Gestion du thème avec persistance localStorage
+const THEME_STORAGE_KEY = "revision_theme_preference";
+
+function syncThemeButtonLabel() {
+    const isLight = document.documentElement.getAttribute("data-theme") === "light";
+    themeToggleBtn.textContent = isLight ? "Passer au thème sombre" : "Passer au thème clair";
+}
+
+themeToggleBtn.addEventListener("click", () => {
+    const root = document.documentElement;
+    const isLight = root.getAttribute("data-theme") === "light";
+    const nextTheme = isLight ? "dark" : "light";
+    root.setAttribute("data-theme", nextTheme);
+    try {
+        localStorage.setItem(THEME_STORAGE_KEY, nextTheme);
+    } catch (e) {}
+    syncThemeButtonLabel();
+});
+
+topBtn.addEventListener("click", () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+});
+
+// Téléchargement autonome hors-ligne propre
+downloadBtn.addEventListener("click", () => {
+    const clone = document.documentElement.cloneNode(true);
+    const boardClone = clone.querySelector("#results-board");
+    if (boardClone) boardClone.replaceChildren();
+    const pillsClone = clone.querySelector("#category-pills");
+    if (pillsClone) pillsClone.replaceChildren();
+    clone.querySelectorAll("dialog[open]").forEach(d => d.removeAttribute("open"));
+    const searchClone = clone.querySelector("#search-input");
+    if (searchClone) searchClone.value = "";
+    const htmlStr = "<!DOCTYPE html>\n" + clone.outerHTML;
+    const blob = new Blob([htmlStr], { type: "text/html;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "cheatsheet-sql.html";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+});
+
+// Lancement initial
+loadPinned();
+syncThemeButtonLabel();
+renderCategories();
+renderBoard();
+</script>
+</body>
+</html>

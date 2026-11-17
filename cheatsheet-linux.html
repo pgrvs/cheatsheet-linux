@@ -40,6 +40,14 @@
     --shadow-hover: 0 8px 28px rgba(0, 0, 0, 0.45);
     --mark-bg: rgba(255, 214, 10, 0.25);
     --mark-text: #ffd60a;
+    /* Coloration syntaxique (mode sombre) */
+    --syntax-keyword: #ff7b72;
+    --syntax-builtin: #79c0ff;
+    --syntax-var: #ffa657;
+    --syntax-string: #7ee787;
+    --syntax-comment: #8b949e;
+    --syntax-number: #d2a8ff;
+    --syntax-punct: #e6edf3;
     color-scheme: dark;
 }
 
@@ -63,6 +71,14 @@
     --shadow-hover: 0 8px 24px rgba(0, 0, 0, 0.10);
     --mark-bg: #fff3b0;
     --mark-text: #1e1e1e;
+    /* Coloration syntaxique (mode clair) */
+    --syntax-keyword: #cf222e;
+    --syntax-builtin: #0550ae;
+    --syntax-var: #953800;
+    --syntax-string: #116329;
+    --syntax-comment: #6e7781;
+    --syntax-number: #8250df;
+    --syntax-punct: #24292f;
     color-scheme: light;
 }
 
@@ -914,6 +930,37 @@ body:has(dialog#card-modal[open]) {
         box-shadow: none;
         border: 1px solid #ccc;
     }
+}
+
+/* ==========================================================================
+   COLORATION SYNTAXIQUE (CODE HIGHLIGHTING)
+   ========================================================================== */
+.hl-keyword {
+    color: var(--syntax-keyword);
+    font-weight: 700;
+}
+.hl-builtin {
+    color: var(--syntax-builtin);
+    font-weight: 600;
+}
+.hl-var {
+    color: var(--syntax-var);
+    font-weight: 600;
+}
+.hl-string {
+    color: var(--syntax-string);
+}
+.hl-comment {
+    color: var(--syntax-comment);
+    font-style: italic;
+    opacity: 0.85;
+}
+.hl-number {
+    color: var(--syntax-number);
+}
+.hl-punct {
+    color: var(--syntax-punct);
+    font-weight: 600;
 }
 </style>
 </head>
@@ -5009,32 +5056,90 @@ function buildAccentPattern(term) {
 }
 
 function highlightText(container, text, query) {
-    const terms = query.trim().split(/\s+/).filter(Boolean);
+    if (text == null || text === "") return;
+    const str = String(text);
+    const terms = (query || "").trim().split(/\s+/).filter(Boolean);
     if (!terms.length) {
-        container.textContent = text;
+        container.appendChild(document.createTextNode(str));
         return;
     }
-    const patterns = terms.map(buildAccentPattern).filter(Boolean);
-    if (!patterns.length) {
-        container.textContent = text;
-        return;
-    }
-    const regex = new RegExp("(" + patterns.join("|") + ")", "gi");
-    let lastIdx = 0;
-    for (const match of text.matchAll(regex)) {
-        const idx = match.index;
-        if (idx > lastIdx) {
-            container.appendChild(document.createTextNode(text.slice(lastIdx, idx)));
+    let regex;
+    try {
+        const patterns = terms.map(buildAccentPattern).filter(Boolean);
+        if (!patterns.length) {
+            container.appendChild(document.createTextNode(str));
+            return;
         }
-        const mark = document.createElement("mark");
-        mark.textContent = match[0];
-        container.appendChild(mark);
-        lastIdx = idx + match[0].length;
+        regex = new RegExp("(" + patterns.join("|") + ")", "gi");
+    } catch (e) {
+        container.appendChild(document.createTextNode(str));
+        return;
     }
-    if (lastIdx < text.length) {
-        container.appendChild(document.createTextNode(text.slice(lastIdx)));
+
+    let lastIdx = 0;
+    try {
+        for (const match of str.matchAll(regex)) {
+            const idx = match.index;
+            if (idx < lastIdx) continue;
+            if (idx > lastIdx) {
+                container.appendChild(document.createTextNode(str.slice(lastIdx, idx)));
+            }
+            const mark = document.createElement("mark");
+            mark.textContent = match[0];
+            container.appendChild(mark);
+            lastIdx = idx + match[0].length;
+        }
+        if (lastIdx < str.length) {
+            container.appendChild(document.createTextNode(str.slice(lastIdx)));
+        }
+    } catch (e) {
+        if (lastIdx < str.length) {
+            container.appendChild(document.createTextNode(str.slice(lastIdx)));
+        }
     }
 }
+
+// Coloration syntaxique pour Bash
+function tokenizeBash(code) {
+    const tokenRegex = /(#[^\n]*)|("[^"\\]*(?:\\.[^"\\]*)*"|'[^'\\]*(?:\\.[^'\\]*)*')|(\$\w+|\$\{[^}]+\}|\$[@#?$0-9])|(\b(?:for|in|do|done|while|until|if|then|elif|else|fi|case|esac|function|return|exit|break|continue)\b)|(\b(?:echo|read|cd|ls|grep|find|cat|chmod|chown|cp|mv|rm|mkdir|kill|ps|tar|sudo|sed|awk|sort|uniq|cut|tr|head|tail|wc|gzip|gunzip|bunzip2|date|whoami|uname|top|htop|apt|ping|ss|history|alias|env|export|set|jobs|fg|bg|nohup|sleep|nice|renice|locate|time|basename|crontab|touch|df|du|free|man|file|stat|ln)\b)|(;;|\|\||&&|<<|<|>>|>|\||\(\)|\{|\}|\[\[|\]\]|\[|\])|(\b\d+\b)/g;
+
+    let lastIdx = 0;
+    const result = [];
+    let match;
+    while ((match = tokenRegex.exec(code)) !== null) {
+        if (match.index > lastIdx) {
+            result.push({ type: "text", val: code.slice(lastIdx, match.index) });
+        }
+        const [full, comment, str, variable, keyword, builtin, punct, num] = match;
+        if (comment) result.push({ type: "comment", val: comment });
+        else if (str) result.push({ type: "string", val: str });
+        else if (variable) result.push({ type: "var", val: variable });
+        else if (keyword) result.push({ type: "keyword", val: keyword });
+        else if (builtin) result.push({ type: "builtin", val: builtin });
+        else if (punct) result.push({ type: "punct", val: punct });
+        else if (num) result.push({ type: "number", val: num });
+        lastIdx = tokenRegex.lastIndex;
+    }
+    if (lastIdx < code.length) {
+        result.push({ type: "text", val: code.slice(lastIdx) });
+    }
+    return result;
+}
+
+function renderHighlightedCode(container, code, rawQuery, lang = "bash") {
+    const tokens = tokenizeBash(code);
+    tokens.forEach(tok => {
+        if (tok.type === "text") {
+            highlightText(container, tok.val, rawQuery);
+        } else {
+            const span = document.createElement("span");
+            span.className = "hl-" + tok.type;
+            highlightText(span, tok.val, rawQuery);
+            container.appendChild(span);
+        }
+    });
+}
+
 
 // Initialisation des pilules de catégories
 const categories = ["Toutes", ...Array.from(new Set(commands.map(c => c.category)))];
@@ -5226,7 +5331,7 @@ function createCardElement(cmd, rawQuery, isModal = false) {
             row.className = "opt-row";
             const k = document.createElement("code");
             k.className = "opt-key";
-            highlightText(k, optKey, rawQuery);
+            renderHighlightedCode(k, optKey, rawQuery, "bash");
             const v = document.createElement("span");
             v.className = "opt-val";
             highlightText(v, optDesc, rawQuery);
@@ -5256,7 +5361,7 @@ function createCardElement(cmd, rawQuery, isModal = false) {
 
             const codeEl = document.createElement("code");
             codeEl.className = "example-code";
-            highlightText(codeEl, exCode, rawQuery);
+            renderHighlightedCode(codeEl, exCode, rawQuery, "bash");
 
             const copyBtn = document.createElement("button");
             copyBtn.type = "button";

@@ -1,0 +1,2451 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Fiche de révision Git complète en français : branches, modifications, commits, synchronisation et dépôts distants, 100 % hors ligne.">
+<title>Fiche de révision Git</title>
+<script>
+(function() {
+    try {
+        const saved = localStorage.getItem("revision_theme_preference");
+        if (saved === "light" || saved === "dark") {
+            document.documentElement.setAttribute("data-theme", saved);
+        }
+    } catch (e) {}
+})();
+</script>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' rx='3' fill='%23191919'/%3E%3Cpath d='M4.5 5.5L7.5 8L4.5 10.5M8.5 10.5H11.5' stroke='%23ffffff' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<style>
+/* ==========================================================================
+   PALETTE UTILISATEUR (NEUTRE & ÉPURÉE)
+   ========================================================================== */
+:root {
+    --background-page-color: #191919;
+    --white-color: #ffffff;
+    --background-element-color: #252525;
+    --attachment-tag: #3e3e3e;
+    --background-card: #1e1e1e;
+    --background-card-label: #2c2c2c;
+    --background-card-body: #242424;
+    --box-color: #2e2e2e;
+    --button-hover-color: #424141;
+    --attachment-color: #4a4a4a;
+    --text-muted: #9e9e9e;
+    --border-subtle: #333333;
+    --border-focus: #616161;
+    --banniere-color-1: #007806;
+    --banniere-color-2: #00c306;
+    --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.28);
+    --shadow-hover: 0 8px 28px rgba(0, 0, 0, 0.45);
+    --mark-bg: rgba(255, 214, 10, 0.25);
+    --mark-text: #ffd60a;
+    /* Coloration syntaxique (mode sombre) */
+    --syntax-keyword: #ff7b72;
+    --syntax-builtin: #79c0ff;
+    --syntax-var: #ffa657;
+    --syntax-string: #7ee787;
+    --syntax-comment: #8b949e;
+    --syntax-number: #d2a8ff;
+    --syntax-punct: #e6edf3;
+    color-scheme: dark;
+}
+
+:root[data-theme="light"] {
+    --background-page-color: #f0f0f0;
+    --white-color: #1e1e1e;
+    --background-element-color: #ffffff;
+    --attachment-tag: #dcdcdc;
+    --background-card: #ffffff;
+    --background-card-label: #eaeaea;
+    --background-card-body: #f7f7f7;
+    --box-color: #e4e4e4;
+    --button-hover-color: #cccccc;
+    --attachment-color: #bcbcbc;
+    --text-muted: #5a5a5a;
+    --border-subtle: #dddddd;
+    --border-focus: #888888;
+    --banniere-color-1: #007806;
+    --banniere-color-2: #00a008;
+    --shadow-card: 0 2px 12px rgba(0, 0, 0, 0.05);
+    --shadow-hover: 0 8px 24px rgba(0, 0, 0, 0.10);
+    --mark-bg: #fff3b0;
+    --mark-text: #1e1e1e;
+    /* Coloration syntaxique (mode clair) */
+    --syntax-keyword: #cf222e;
+    --syntax-builtin: #0550ae;
+    --syntax-var: #953800;
+    --syntax-string: #116329;
+    --syntax-comment: #6e7781;
+    --syntax-number: #8250df;
+    --syntax-punct: #24292f;
+    color-scheme: light;
+}
+
+/* ==========================================================================
+   RESET & BASE
+   ========================================================================== */
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background-color: var(--background-page-color);
+    color: var(--white-color);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.6;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    transition: background-color 0.2s ease, color 0.2s ease;
+    -webkit-font-smoothing: antialiased;
+}
+
+.page-wrapper {
+    width: min(100% - 32px, 1340px);
+    margin-inline: auto;
+    flex: 1;
+    padding-top: 36px;
+    padding-bottom: 60px;
+}
+
+/* ==========================================================================
+   HEADER
+   ========================================================================== */
+.site-header {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 16px;
+    margin-bottom: 28px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border-subtle);
+}
+
+.brand-group {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.brand-logo {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: var(--background-element-color);
+    border: 1px solid var(--attachment-tag);
+    display: grid;
+    place-items: center;
+    color: var(--white-color);
+    box-shadow: var(--shadow-card);
+}
+
+.brand-logo svg {
+    width: 24px;
+    height: 24px;
+}
+
+.brand-titles h1 {
+    font-size: clamp(1.5rem, 2.5vw, 2rem);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--white-color);
+    line-height: 1.2;
+}
+
+.brand-titles p {
+    color: var(--text-muted);
+    font-size: 0.92rem;
+    margin-top: 2px;
+}
+
+.header-stats {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.header-back-btn {
+    text-decoration: none;
+    background: var(--box-color);
+    border: 1px solid var(--border-subtle);
+    color: var(--white-color);
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: background-color 0.18s ease, border-color 0.18s ease, transform 0.15s ease;
+}
+
+.header-back-btn:hover {
+    background: var(--button-hover-color);
+    border-color: var(--border-focus);
+    transform: translateX(-2px);
+}
+
+.header-back-btn svg {
+    width: 14px;
+    height: 14px;
+}
+
+.stat-pill {
+    background: var(--background-element-color);
+    border: 1px solid var(--border-subtle);
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+.stat-pill strong {
+    color: var(--white-color);
+}
+
+/* ==========================================================================
+   BARRE DE RECHERCHE & FILTRES (STICKY)
+   ========================================================================== */
+.toolbar-container {
+    position: sticky;
+    top: 14px;
+    z-index: 40;
+    margin-bottom: 28px;
+}
+
+.toolbar {
+    background: color-mix(in srgb, var(--background-card) 92%, transparent);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--attachment-tag);
+    border-radius: 12px;
+    padding: 14px;
+    box-shadow: var(--shadow-card);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.search-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+}
+
+.search-box {
+    flex: 1 1 320px;
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.search-box svg {
+    position: absolute;
+    left: 14px;
+    width: 18px;
+    height: 18px;
+    color: var(--text-muted);
+    pointer-events: none;
+}
+
+.search-box input {
+    width: 100%;
+    padding: 8px 14px 8px 42px;
+    border-radius: 8px;
+    border: 1px solid var(--border-subtle);
+    background: var(--background-page-color);
+    color: var(--white-color);
+    font-size: 0.96rem;
+    font-family: inherit;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.search-box input:focus {
+    outline: none;
+    border-color: var(--border-focus);
+}
+
+.toolbar-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+}
+
+.btn {
+    padding: 10px 15px;
+    border-radius: 8px;
+    border: 1px solid var(--border-subtle);
+    background: var(--box-color);
+    color: var(--white-color);
+    font-family: inherit;
+    font-size: 0.88rem;
+    font-weight: 500;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background-color 0.18s ease, border-color 0.18s ease, transform 0.1s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    white-space: nowrap;
+}
+
+.btn:hover:not(:disabled) {
+    background: var(--button-hover-color);
+    border-color: var(--border-focus);
+}
+
+.btn:active:not(:disabled) {
+    transform: translateY(1px);
+}
+
+.btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+.btn[aria-pressed="true"] {
+    background: var(--white-color);
+    color: var(--background-page-color);
+    border-color: var(--white-color);
+    font-weight: 600;
+}
+
+.btn-primary-green {
+    background: var(--banniere-color-1);
+    color: #ffffff;
+    border-color: var(--banniere-color-1);
+    font-weight: 600;
+}
+
+.btn-primary-green:hover:not(:disabled) {
+    background: var(--banniere-color-2);
+    border-color: var(--banniere-color-2);
+    color: #ffffff;
+}
+
+/* Pilules de catégories */
+.category-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding-top: 4px;
+}
+
+.cat-pill {
+    padding: 5px 12px;
+    border-radius: 999px;
+    border: 1px solid transparent;
+    background: var(--background-element-color);
+    color: var(--text-muted);
+    font-size: 0.82rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.16s ease;
+    font-family: inherit;
+}
+
+.cat-pill:hover {
+    color: var(--white-color);
+    background: var(--box-color);
+}
+
+.cat-pill.active {
+    background: var(--white-color);
+    color: var(--background-page-color);
+    font-weight: 600;
+}
+
+/* ==========================================================================
+   GRILLE FLEX-MASONRY (ZÉRO VIDE, ZÉRO BUG DE COLONNE CSS)
+   ========================================================================== */
+.masonry-board {
+    display: grid;
+    grid-template-columns: repeat(var(--cols, 2), minmax(0, 1fr));
+    gap: 20px;
+    align-items: start;
+}
+
+.masonry-col, .masonry-column {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    min-width: 0;
+}
+
+/* ==========================================================================
+   CARTES DE COMMANDES
+   ========================================================================== */
+.card {
+    background: var(--background-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: var(--shadow-card);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    cursor: pointer;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.card:hover {
+    border-color: var(--border-focus);
+    box-shadow: var(--shadow-hover);
+}
+
+.card.pinned {
+    border-color: var(--white-color);
+    box-shadow: 0 0 0 1px var(--white-color), var(--shadow-card);
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border-subtle);
+}
+
+.card-title-group {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+}
+
+.card-title {
+    font-size: 1.22rem;
+    font-weight: 700;
+    color: var(--white-color);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    letter-spacing: -0.02em;
+    word-break: break-word;
+}
+
+.badge-group {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+}
+
+.cat-badge {
+    background: var(--background-card-label);
+    color: var(--white-color);
+    border: 1px solid var(--attachment-tag);
+    padding: 3px 9px;
+    border-radius: 6px;
+    font-size: 0.74rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+}
+
+.kind-badge {
+    background: transparent;
+    color: var(--text-muted);
+    border: 1px solid var(--border-subtle);
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-family: system-ui, sans-serif;
+}
+
+.pin-btn {
+    background: var(--background-element-color);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-muted);
+    width: 30px;
+    height: 30px;
+    border-radius: 6px;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    flex-shrink: 0;
+}
+
+.pin-btn:hover {
+    color: var(--white-color);
+    border-color: var(--border-focus);
+    background: var(--box-color);
+}
+
+.card.pinned .pin-btn {
+    background: var(--white-color);
+    color: var(--background-page-color);
+    border-color: var(--white-color);
+}
+
+.card-desc {
+    color: var(--white-color);
+    opacity: 0.92;
+    font-size: 0.94rem;
+    line-height: 1.55;
+}
+
+.section-label {
+    font-size: 0.76rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-muted);
+    margin-top: 4px;
+    margin-bottom: 6px;
+}
+
+/* Liste d'options structurée */
+.options-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    background: var(--background-card-body);
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid var(--border-subtle);
+}
+
+.opt-row {
+    display: grid;
+    grid-template-columns: minmax(110px, auto) 1fr;
+    gap: 12px;
+    align-items: flex-start;
+    font-size: 0.88rem;
+    padding-bottom: 6px;
+    border-bottom: 1px dashed var(--border-subtle);
+}
+
+.opt-row:last-child {
+    padding-bottom: 0;
+    border-bottom: none;
+}
+
+.opt-key {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-weight: 600;
+    color: var(--white-color);
+    background: var(--box-color);
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.84rem;
+    justify-self: start;
+    border: 1px solid var(--attachment-tag);
+    white-space: pre;
+    tab-size: 4;
+    line-height: 1.45;
+    max-width: 100%;
+    overflow-x: auto;
+}
+
+.opt-val {
+    color: var(--white-color);
+    opacity: 0.88;
+    white-space: pre-wrap;
+    line-height: 1.45;
+}
+
+/* Exemples avec bouton copier */
+.examples-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.example-item {
+    background: var(--background-card-body);
+    border: 1px solid var(--border-subtle);
+    border-radius: 8px;
+    padding: 10px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.example-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+.example-code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 0.87rem;
+    font-weight: 600;
+    color: var(--white-color);
+    white-space: pre;
+    tab-size: 4;
+    line-height: 1.5;
+    overflow-x: auto;
+    max-width: 100%;
+}
+
+.copy-btn {
+    background: var(--box-color);
+    border: 1px solid var(--attachment-tag);
+    color: var(--text-muted);
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 0.74rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    flex-shrink: 0;
+    margin-top: 1px;
+}
+
+.copy-btn:hover {
+    color: var(--white-color);
+    background: var(--button-hover-color);
+}
+
+.copy-btn.copied {
+    background: var(--banniere-color-1);
+    color: #ffffff;
+    border-color: var(--banniere-color-1);
+}
+
+.example-exp {
+    font-size: 0.84rem;
+    color: var(--text-muted);
+}
+
+/* Tableaux intégrés aux cartes */
+.table-wrap {
+    overflow-x: auto;
+    border: 1px solid var(--border-subtle);
+    border-radius: 8px;
+    background: var(--background-card-body);
+    margin: 4px 0;
+}
+
+.table-wrap table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.84rem;
+}
+
+.table-wrap caption {
+    text-align: left;
+    padding: 8px 10px;
+    font-weight: 600;
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--border-subtle);
+    background: var(--background-element-color);
+}
+
+.table-wrap th, .table-wrap td {
+    padding: 7px 10px;
+    text-align: left;
+    border-bottom: 1px solid var(--border-subtle);
+    vertical-align: top;
+}
+
+.table-wrap thead th {
+    background: var(--box-color);
+    color: var(--white-color);
+    font-weight: 600;
+}
+
+.table-wrap tbody tr:last-child th,
+.table-wrap tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* Notes & Alertes */
+.card-note {
+    padding: 10px 12px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    background: var(--background-element-color);
+    border-left: 3px solid var(--attachment-color);
+    color: var(--white-color);
+    opacity: 0.92;
+}
+
+.card-note.warning {
+    border-left-color: #d97706;
+    background: color-mix(in srgb, #d97706 10%, var(--background-element-color));
+}
+
+mark {
+    background: var(--mark-bg);
+    color: var(--mark-text);
+    padding: 0 3px;
+    border-radius: 3px;
+}
+
+.empty-state {
+    background: var(--background-card);
+    border: 1px dashed var(--attachment-tag);
+    border-radius: 12px;
+    padding: 48px 20px;
+    text-align: center;
+    color: var(--text-muted);
+    margin: 20px 0;
+}
+
+/* ==========================================================================
+   SECTIONS ASTUCES (ACCORDÉONS)
+   ========================================================================== */
+.tips-section {
+    margin-top: 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+details.tips {
+    background: var(--background-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: 12px;
+    padding: 18px 22px;
+    box-shadow: var(--shadow-card);
+}
+
+details.tips summary {
+    cursor: pointer;
+    list-style: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    font-weight: 600;
+}
+
+details.tips summary::-webkit-details-marker {
+    display: none;
+}
+
+details.tips summary h2 {
+    font-size: 1.1rem;
+    color: var(--white-color);
+    font-weight: 600;
+}
+
+details.tips summary::after {
+    content: "Afficher";
+    font-size: 0.8rem;
+    padding: 4px 10px;
+    border-radius: 6px;
+    background: var(--box-color);
+    border: 1px solid var(--attachment-tag);
+    color: var(--text-muted);
+}
+
+details.tips[open] summary::after {
+    content: "Masquer";
+}
+
+details.tips[open] summary {
+    padding-bottom: 14px;
+    margin-bottom: 14px;
+    border-bottom: 1px solid var(--border-subtle);
+}
+
+details.tips h3 {
+    font-size: 0.98rem;
+    color: var(--white-color);
+    margin: 16px 0 8px;
+}
+
+details.tips p, details.tips li {
+    font-size: 0.92rem;
+    color: var(--white-color);
+    opacity: 0.9;
+    margin: 6px 0;
+}
+
+details.tips ul {
+    padding-left: 20px;
+}
+
+details.tips code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    background: var(--background-card-body);
+    padding: 2px 6px;
+    border-radius: 4px;
+    border: 1px solid var(--border-subtle);
+    font-size: 0.86em;
+}
+
+details.tips .note {
+    margin-top: 12px;
+    padding: 10px 14px;
+    background: var(--background-card-body);
+    border-left: 3px solid var(--border-focus);
+    border-radius: 0 8px 8px 0;
+}
+
+/* ==========================================================================
+   MODALE D'AFFICHAGE AGRANDI (AVEC ARRIÈRE-PLAN FLOUTÉ)
+   ========================================================================== */
+dialog#card-modal {
+    width: min(92vw, 760px);
+    max-height: 88vh;
+    margin: auto;
+    padding: 0;
+    border: 1px solid var(--attachment-color);
+    border-radius: 16px;
+    background: var(--background-card);
+    color: var(--white-color);
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.65);
+    overflow: hidden;
+}
+
+dialog#card-modal::backdrop {
+    background: rgba(10, 10, 10, 0.62);
+    backdrop-filter: blur(7px);
+    -webkit-backdrop-filter: blur(7px);
+    animation: backdropFade 0.2s ease;
+}
+
+
+dialog#card-modal[open] {
+    animation: modalZoom 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Nouveau : Empêcher le défilement du corps (body) quand une modale est ouverte */
+body:has(dialog#card-modal[open]) {
+    overflow: hidden;
+}
+
+@keyframes modalZoom {
+    from { opacity: 0; transform: scale(0.95) translateY(8px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+@keyframes backdropFade {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.modal-header-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 24px;
+    background: var(--background-element-color);
+    border-bottom: 1px solid var(--border-subtle);
+}
+
+.modal-header-bar span {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+.modal-close-btn {
+    padding: 6px 14px;
+    border-radius: 6px;
+    border: 1px solid var(--attachment-tag);
+    background: var(--box-color);
+    color: var(--white-color);
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.modal-close-btn:hover {
+    background: var(--button-hover-color);
+}
+
+.modal-body-container {
+    padding: 24px;
+    max-height: calc(88vh - 60px);
+    overflow-y: auto;
+}
+
+.modal-body-container .card {
+    border: none;
+    box-shadow: none;
+    padding: 0;
+    cursor: default;
+    background: transparent;
+}
+
+.modal-body-container .card-title {
+    font-size: 1.5rem;
+}
+
+.modal-body-container .card-desc {
+    font-size: 1.02rem;
+}
+
+.modal-body-container .pin-btn {
+    display: none;
+}
+
+/* ==========================================================================
+   FOOTER AVEC BOUTONS CLASSIQUES (THÈME + TÉLÉCHARGEMENT)
+   ========================================================================== */
+.site-footer {
+    border-top: 1px solid var(--border-subtle);
+    background: var(--background-element-color);
+    padding: 24px 20px;
+    margin-top: auto;
+}
+
+.footer-inner {
+    width: min(100%, 1340px);
+    margin-inline: auto;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+}
+
+.footer-info {
+    font-size: 0.88rem;
+    color: var(--text-muted);
+}
+
+.footer-controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+}
+
+@media print {
+    .toolbar-container, .site-footer, .pin-btn, .copy-btn, .header-back-btn {
+        display: none !important;
+    }
+    .masonry-board {
+        display: block;
+    }
+    .card {
+        break-inside: avoid;
+        margin-bottom: 16px;
+        box-shadow: none;
+        border: 1px solid #ccc;
+    }
+}
+
+/* ==========================================================================
+   COLORATION SYNTAXIQUE (CODE HIGHLIGHTING)
+   ========================================================================== */
+.hl-keyword {
+    color: var(--syntax-keyword);
+    font-weight: 700;
+}
+.hl-builtin {
+    color: var(--syntax-builtin);
+    font-weight: 600;
+}
+.hl-var {
+    color: var(--syntax-var);
+    font-weight: 600;
+}
+.hl-string {
+    color: var(--syntax-string);
+}
+.hl-comment {
+    color: var(--syntax-comment);
+    font-style: italic;
+    opacity: 0.85;
+}
+.hl-number {
+    color: var(--syntax-number);
+}
+.hl-punct {
+    color: var(--syntax-punct);
+    font-weight: 600;
+}
+</style>
+</head>
+<body>
+
+<div class="page-wrapper">
+    <header class="site-header">
+        <div class="brand-group">
+            <div class="brand-logo" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="6" y1="3" x2="6" y2="15"></line>
+                    <circle cx="18" cy="6" r="3"></circle>
+                    <circle cx="6" cy="18" r="3"></circle>
+                    <path d="M18 9a9 9 0 0 1-9 9"></path>
+                </svg>
+            </div>
+            <div class="brand-titles">
+                <h1>Fiche de révision Git</h1>
+                <p>Fiche de révision complète : branches, modifications, commits et dépôts distants</p>
+            </div>
+        </div>
+        <div class="header-stats">
+            <a href="index.html" class="header-back-btn" title="Retourner au portail d'accueil">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="19" y1="12" x2="5" y2="12"></line>
+                    <polyline points="12 19 5 12 12 5"></polyline>
+                </svg>
+                Accueil
+            </a>
+            <span class="stat-pill" id="result-count">Chargement...</span>
+        </div>
+    </header>
+
+    <div class="toolbar-container">
+        <div class="toolbar">
+            <div class="search-row">
+                <div class="search-box">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                    <input type="search" id="search-input" placeholder="Rechercher une commande, une option, un exemple (Raccourci : /)">
+                </div>
+                <div class="toolbar-actions">
+                    <button type="button" class="btn" id="title-only-btn" aria-pressed="false" title="Rechercher uniquement dans le nom des commandes">
+                        Titre uniquement
+                    </button>
+                    <button type="button" class="btn" id="pinned-only-btn" aria-pressed="false" disabled title="Afficher uniquement les cartes épinglées pour vos révisions">
+                        Sélection (0)
+                    </button>
+                    <button type="button" class="btn" id="reset-btn" title="Réinitialiser la recherche et les filtres">
+                        Réinitialiser
+                    </button>
+                </div>
+            </div>
+            <div class="category-pills" id="category-pills" role="tablist" aria-label="Filtrer par catégorie">
+                <!-- Généré dynamiquement -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Conteneur Masonry piloté en JS : garantit 0 espace vide et 0 bug de survol -->
+    <main id="results-board" class="masonry-board"></main>
+</div>
+
+<!-- Pied de page avec les boutons classiques -->
+<footer class="site-footer">
+    <div class="footer-inner">
+        <div class="footer-info">
+            Fiche mémo Git — Consultable 100 % hors connexion.
+        </div>
+        <div class="footer-controls">
+            <button type="button" class="btn" id="theme-toggle-btn">
+                Passer au thème clair
+            </button>
+            <button type="button" class="btn" id="top-btn">
+                Remonter en haut
+            </button>
+            <button type="button" class="btn btn-primary-green" id="download-btn">
+                Télécharger la page HTML
+            </button>
+        </div>
+    </div>
+</footer>
+
+<!-- Modale centrée avec arrière-plan flouté -->
+<dialog id="card-modal" aria-label="Détail de la commande">
+    <div class="modal-header-bar">
+        <span>Vue détaillée</span>
+        <button type="button" class="modal-close-btn" id="modal-close-btn">Fermer</button>
+    </div>
+    <div class="modal-body-container" id="modal-body"></div>
+</dialog>
+
+<script>
+const commands = [
+  {
+    "name": "git branch",
+    "category": "Gestion des branches",
+    "description": "Liste, inspecte, crée ou supprime les branches du dépôt.",
+    "options": [
+      [
+        "git branch",
+        "Liste les branches locales (* indique la branche active)"
+      ],
+      [
+        "git branch -a",
+        "Liste toutes les branches locales et distantes (remotes/origin/...)"
+      ],
+      [
+        "git branch -r",
+        "Liste uniquement les branches distantes suivies"
+      ],
+      [
+        "git branch -d <branche>",
+        "Supprime une branche locale déjà fusionnée (mode sécurisé)"
+      ],
+      [
+        "git branch -D <branche>",
+        "Force la suppression d'une branche locale (même non fusionnée)"
+      ],
+      [
+        "git branch -m <nouveau-nom>",
+        "Renomme la branche courante active"
+      ]
+    ],
+    "examples": [
+      [
+        "git branch",
+        "Affiche la liste des branches locales disponibles."
+      ],
+      [
+        "git branch -a",
+        "Affiche l'ensemble des branches locales et distantes."
+      ],
+      [
+        "git branch -d feature-login",
+        "Supprime proprement la branche locale feature-login après intégration."
+      ],
+      [
+        "git branch -D test-abandon",
+        "Force la suppression immédiate sans avertissement ni vérification de fusion."
+      ]
+    ],
+    "tip": "git branch -d protège contre la perte de travail : elle refuse d'effacer une branche contenant des commits non intégrés. Utilisez -D (équivalent à --delete --force) uniquement si vous souhaitez délibérément abandonner ces commits."
+  },
+  {
+    "name": "git switch",
+    "category": "Gestion des branches",
+    "description": "Bascule d'une branche à une autre ou crée une nouvelle branche de travail (alternative moderne et dédiée à git checkout).",
+    "options": [
+      [
+        "git switch <branche>",
+        "Bascule sur la branche spécifiée et met à jour l'espace de travail"
+      ],
+      [
+        "git switch -c <branche>",
+        "Crée une nouvelle branche et bascule immédiatement dessus"
+      ],
+      [
+        "git switch -",
+        "Revient instantanément à la branche précédente"
+      ]
+    ],
+    "examples": [
+      [
+        "git switch main",
+        "Bascule sur la branche principale main."
+      ],
+      [
+        "git switch -c feature/connexion",
+        "Crée la branche feature/connexion et s'y positionne directement."
+      ],
+      [
+        "git switch -",
+        "Bascule rapidement sur la dernière branche active."
+      ]
+    ],
+    "tip": "git switch a été introduit pour clarifier l'usage de Git : il remplace l'ancienne commande git checkout <branche> en se concentrant exclusivement sur la navigation entre branches."
+  },
+  {
+    "name": "git merge",
+    "category": "Gestion des branches",
+    "description": "Fusionne l'historique et les commits d'une autre branche dans la branche courante active.",
+    "options": [
+      [
+        "git merge <branche>",
+        "Fusionne la branche spécifiée dans la branche active"
+      ],
+      [
+        "git merge --no-ff <branche>",
+        "Force la création d'un commit de fusion (merge commit) même en avance rapide"
+      ],
+      [
+        "git merge --abort",
+        "Interrompt la fusion en cours et restaure l'état pré-fusion en cas de conflits"
+      ]
+    ],
+    "examples": [
+      [
+        "git switch main\ngit merge feature/connexion",
+        "Se place sur main et y intègre les modifications de feature/connexion."
+      ],
+      [
+        "git merge --abort",
+        "Annule une tentative de fusion présentant des conflits complexes."
+      ]
+    ],
+    "warning": "Placez-vous toujours au préalable sur la branche destinataire (celle qui doit recevoir les changements, ex: main) avant d'exécuter git merge."
+  },
+  {
+    "name": "git status",
+    "category": "Gestion des modifications",
+    "description": "Affiche l'état des fichiers du répertoire de travail et de la zone d'index (modifiés, indexés ou non suivis).",
+    "options": [
+      [
+        "git status",
+        "Affiche l'état détaillé complet de tous les fichiers"
+      ],
+      [
+        "git status -s",
+        "Affiche un résumé court et condensé (M = modifié, A = ajouté, ?? = non suivi)"
+      ],
+      [
+        "git status -b",
+        "Affiche l'état court avec le nom de la branche courante et l'écart avec le distant"
+      ]
+    ],
+    "examples": [
+      [
+        "git status",
+        "Vérifie les fichiers modifiés et ceux prêts à être enregistrés."
+      ],
+      [
+        "git status -s",
+        "Aperçu synthétique ultra-rapide en console."
+      ]
+    ],
+    "tip": "Exécutez systématiquement git status avant d'indexer (git add) ou de commiter pour vérifier l'état exact du dépôt."
+  },
+  {
+    "name": "git add",
+    "category": "Gestion des modifications",
+    "description": "Prépare et ajoute les modifications du répertoire de travail à la zone de transit (staging area / index) pour le prochain commit.",
+    "options": [
+      [
+        "git add .",
+        "Prépare toutes les modifications et nouveaux fichiers du répertoire courant"
+      ],
+      [
+        "git add <fichier>",
+        "Prépare uniquement le fichier ou dossier spécifié"
+      ],
+      [
+        "git add -A",
+        "Prépare l'intégralité des ajouts, modifications et suppressions de tout le dépôt"
+      ],
+      [
+        "git add -p",
+        "Mode interactif pour sélectionner et valider les modifications fragment par fragment (patch)"
+      ]
+    ],
+    "examples": [
+      [
+        "git add .",
+        "Prépare l'ensemble des fichiers modifiés pour le futur commit."
+      ],
+      [
+        "git add index.html style.css",
+        "Prépare uniquement deux fichiers précis."
+      ],
+      [
+        "git add -p script.js",
+        "Passe en revue chaque bloc de modification avant de l'indexer."
+      ]
+    ],
+    "warning": "git add . indexe tous les fichiers du dossier courant. Utilisez un fichier .gitignore pour exclure automatiquement les dossiers lourds (ex: node_modules/, build/) ou les clés sensibles (.env)."
+  },
+  {
+    "name": "git commit",
+    "category": "Gestion des modifications",
+    "description": "Enregistre de manière permanente dans l'historique du dépôt un instantané (snapshot) des fichiers indexés.",
+    "options": [
+      [
+        "git commit -m \"message\"",
+        "Crée un commit avec un message descriptif inline"
+      ],
+      [
+        "git commit -am \"message\"",
+        "Raccourci combinant indexation des fichiers suivis modifiés et commit"
+      ],
+      [
+        "git commit --amend -m \"nouveau\"",
+        "Modifie le message ou le contenu du tout dernier commit"
+      ]
+    ],
+    "examples": [
+      [
+        "git commit -m \"feat: ajout du formulaire de contact\"",
+        "Enregistre les modifications indexées avec un message clair."
+      ],
+      [
+        "git commit -am \"fix: correction de la marge du header\"",
+        "Indexe et commite les fichiers déjà suivis en une seule commande."
+      ],
+      [
+        "git commit --amend -m \"docs: mise a jour du README\"",
+        "Corrige le dernier commit avant tout push distant."
+      ]
+    ],
+    "tip": "Rédigez des messages clairs, concis et à l'impératif (ex: convention Conventional Commits : feat:, fix:, docs:, refactor:)."
+  },
+  {
+    "name": "git log",
+    "category": "Gestion des modifications",
+    "description": "Affiche l'historique chronologique des commits enregistrés avec leurs identifiants SHA, auteurs, dates et messages.",
+    "options": [
+      [
+        "git log",
+        "Affiche l'historique complet détaillé avec auteur et date"
+      ],
+      [
+        "git log --oneline",
+        "Affiche l'historique condensé (un commit par ligne avec hash court)"
+      ],
+      [
+        "git log -n <nombre>",
+        "Limite l'affichage aux N derniers commits"
+      ],
+      [
+        "git log --graph --oneline --all",
+        "Affiche l'arborescence graphique ASCII des branches et fusions"
+      ],
+      [
+        "git log -p",
+        "Affiche le diff détaillé des lignes modifiées dans chaque commit"
+      ]
+    ],
+    "examples": [
+      [
+        "git log --oneline",
+        "Consulte rapidement la liste condensée des commits récents."
+      ],
+      [
+        "git log -n 5 --oneline",
+        "Affiche uniquement les 5 derniers commits."
+      ],
+      [
+        "git log --graph --oneline --all",
+        "Visualise graphiquement l'arborescence des branches et merges."
+      ]
+    ],
+    "tip": "La commande git log ouvre un visualiseur interactif : appuyez sur la touche 'q' pour quitter et revenir au terminal."
+  },
+  {
+    "name": "git diff",
+    "category": "Gestion des modifications",
+    "description": "Compare et visualise les modifications ligne par ligne entre le répertoire de travail, l'index et les commits.",
+    "options": [
+      [
+        "git diff",
+        "Affiche les modifications non indexées (entre le répertoire de travail et l'index)"
+      ],
+      [
+        "git diff --staged",
+        "Affiche les modifications indexées prêtes pour le commit (entre l'index et HEAD)"
+      ],
+      [
+        "git diff <branche1> <branche2>",
+        "Compare les différences entre deux branches distinctes"
+      ],
+      [
+        "git diff HEAD~1 HEAD",
+        "Compare les modifications entre l'avant-dernier et le dernier commit"
+      ]
+    ],
+    "examples": [
+      [
+        "git diff",
+        "Vérifie ce qui a changé depuis le dernier git add."
+      ],
+      [
+        "git diff --staged",
+        "Relecture finale de ce qui va être validé par git commit."
+      ],
+      [
+        "git diff main feature/auth",
+        "Examine toutes les différences entre main et la branche feature/auth."
+      ]
+    ],
+    "tip": "Prenez l'habitude de taper git diff --staged (ou git diff --cached) avant de commiter pour une relecture propre."
+  },
+  {
+    "name": "git restore & annulations",
+    "category": "Gestion des modifications",
+    "description": "Annule des modifications locales, retire des fichiers de l'index ou réinitialise l'espace de travail.",
+    "options": [
+      [
+        "git restore <fichier>",
+        "Annule les modifications non indexées d'un fichier (retour à l'état du commit)"
+      ],
+      [
+        "git restore --staged <fichier>",
+        "Retire un fichier de l'index de préparation sans toucher à son contenu"
+      ],
+      [
+        "git reset HEAD~1",
+        "Annule le dernier commit tout en conservant vos modifications dans le dossier de travail"
+      ],
+      [
+        "git revert <commit>",
+        "Crée un nouveau commit annulant les effets d'un commit passé (sûr pour le distant)"
+      ]
+    ],
+    "examples": [
+      [
+        "git restore index.html",
+        "Abandonne les modifications locales récentes sur index.html."
+      ],
+      [
+        "git restore --staged script.js",
+        "Désindexe script.js après un git add involontaire."
+      ],
+      [
+        "git reset HEAD~1",
+        "Défait le dernier commit local pour pouvoir le corriger ou le scinder."
+      ]
+    ],
+    "warning": "git restore <fichier> écrase définitivement vos modifications non enregistrées du fichier : elles ne peuvent pas être récupérées."
+  },
+  {
+    "name": "git stash",
+    "category": "Gestion des modifications",
+    "description": "Met temporairement de côté les modifications non commitées pour retrouver un espace de travail propre sans perdre son travail.",
+    "options": [
+      [
+        "git stash",
+        "Remise : sauvegarde les modifications en cours et restaure le dernier commit"
+      ],
+      [
+        "git stash pop",
+        "Restaure les modifications sauvegardées et les supprime de la pile de remise"
+      ],
+      [
+        "git stash list",
+        "Affiche la liste de toutes les remises en attente"
+      ],
+      [
+        "git stash drop",
+        "Supprime la remise la plus récente sans l'appliquer"
+      ]
+    ],
+    "examples": [
+      [
+        "git stash",
+        "Met de côté le travail en cours pour pouvoir changer de branche rapidement."
+      ],
+      [
+        "git stash pop",
+        "Récupère ses modifications dès le retour sur la branche de travail."
+      ]
+    ],
+    "tip": "Pratique lorsque vous devez changer d'urgence de branche avec git switch sans commiter un code incomplet ou cassé."
+  },
+  {
+    "name": "git fetch",
+    "category": "Dépôt distant & Synchronisation",
+    "description": "Télécharge les commits, fichiers et références depuis le dépôt distant sans modifier votre copie de travail locale.",
+    "options": [
+      [
+        "git fetch",
+        "Récupère les nouveautés de tous les dépôts distants configurés"
+      ],
+      [
+        "git fetch origin",
+        "Récupère spécifiquement depuis le dépôt distant origin"
+      ],
+      [
+        "git fetch origin <branche>",
+        "Récupère uniquement la branche distante indiquée"
+      ],
+      [
+        "git fetch --prune",
+        "Nettoie les références locales vers les branches distantes supprimées sur le serveur"
+      ]
+    ],
+    "examples": [
+      [
+        "git fetch",
+        "Télécharge les dernières nouveautés du serveur sans impacter vos fichiers de travail."
+      ],
+      [
+        "git fetch origin main",
+        "Met à jour la référence locale origin/main."
+      ],
+      [
+        "git fetch --prune",
+        "Supprime du cache local les branches distantes obsolètes."
+      ]
+    ],
+    "tip": "git fetch est une commande 100 % sécurisée : elle ne touche jamais à votre code local et ne provoque aucun conflit de fusion."
+  },
+  {
+    "name": "git pull",
+    "category": "Dépôt distant & Synchronisation",
+    "description": "Récupère les nouveautés depuis le serveur distant et les fusionne immédiatement dans la branche locale courante (git fetch + git merge).",
+    "options": [
+      [
+        "git pull",
+        "Récupère et intègre les nouveautés de la branche distante suivie"
+      ],
+      [
+        "git pull origin <branche>",
+        "Récupère et fusionne explicitement la branche distante indiquée"
+      ],
+      [
+        "git pull --rebase",
+        "Rejoue les commits locaux au sommet des commits distants sans créer de commit de merge"
+      ]
+    ],
+    "examples": [
+      [
+        "git pull",
+        "Met à jour la branche locale courante avec les derniers commits distants."
+      ],
+      [
+        "git pull origin main",
+        "Télécharge et fusionne la branche main distante dans la branche courante."
+      ],
+      [
+        "git pull --rebase origin main",
+        "Synchronise proprement avec un historique linéaire sans commit de fusion parasite."
+      ]
+    ],
+    "warning": "Si des modifications distantes entrent en collision avec vos modifications locales non commitées ou divergentes, Git signalera un conflit à résoudre."
+  },
+  {
+    "name": "git push",
+    "category": "Dépôt distant & Synchronisation",
+    "description": "Envoie vos commits locaux vers le dépôt distant pour les partager et mettre à jour le serveur (GitHub, GitLab...).",
+    "options": [
+      [
+        "git push",
+        "Envoie les commits locaux sur la branche distante suivie associée"
+      ],
+      [
+        "git push origin <branche>",
+        "Envoie une branche locale vers la branche distante homonyme sur origin"
+      ],
+      [
+        "git push -u origin <branche>",
+        "Envoie la branche et configure son suivi distant par défaut (--set-upstream)"
+      ],
+      [
+        "git push origin --delete <branche>",
+        "Supprime définitivement une branche distante sur le serveur"
+      ],
+      [
+        "git push --force-with-lease",
+        "Force l'envoi de manière sécurisée en vérifiant qu'aucun collègue n'a poussé entre-temps"
+      ]
+    ],
+    "examples": [
+      [
+        "git push",
+        "Envoie les nouveaux commits locaux sur le serveur distant."
+      ],
+      [
+        "git push origin feature/connexion",
+        "Envoie la branche feature/connexion sur le serveur origin."
+      ],
+      [
+        "git push -u origin feature/connexion",
+        "Premier envoi : crée la branche sur le serveur et associe son suivi automatique."
+      ],
+      [
+        "git push origin --delete feature/terminee",
+        "Supprime la branche feature/terminee directement sur le serveur distant."
+      ]
+    ],
+    "tip": "origin désigne généralement le dépôt distant. L'option que vous recherchez lors du premier envoi d'une nouvelle branche est git push -u origin <branche> : elle associe la branche locale à la branche distante, permettant ensuite d'utiliser simplement git push et git pull sans répéter origin <branche>."
+  },
+  {
+    "name": "git remote",
+    "category": "Dépôt distant & Synchronisation",
+    "description": "Gère et visualise les connexions aux dépôts distants (remotes) associés au projet.",
+    "options": [
+      [
+        "git remote -v",
+        "Liste tous les dépôts distants configurés avec leurs URL de fetch et de push"
+      ],
+      [
+        "git remote add <nom> <url>",
+        "Associe une nouvelle URL distante sous un alias (généralement origin)"
+      ],
+      [
+        "git remote set-url <nom> <url>",
+        "Modifie l'adresse URL d'un dépôt distant existant"
+      ],
+      [
+        "git remote remove <nom>",
+        "Supprime la connexion avec le dépôt distant spécifié"
+      ]
+    ],
+    "examples": [
+      [
+        "git remote -v",
+        "Vérifie les adresses URL associées à origin pour le push et le fetch."
+      ],
+      [
+        "git remote add origin https://github.com/pseudo/projet.git",
+        "Lie le dépôt local à un nouveau dépôt GitHub."
+      ]
+    ],
+    "tip": "Le terme origin n'est pas un mot magique de Git : c'est simplement le nom conventionnel donné par défaut au serveur distant principal."
+  },
+  {
+    "name": "git init & git clone",
+    "category": "Fondamentaux & Démarrage",
+    "description": "Initialise un nouveau projet Git local ou télécharge une copie intégrale d'un dépôt distant existant.",
+    "options": [
+      [
+        "git init",
+        "Initialise un nouveau dépôt Git vide dans le répertoire courant (crée le dossier masqué .git/)"
+      ],
+      [
+        "git clone <url>",
+        "Télécharge un dépôt distant et tout son historique dans un nouveau sous-dossier"
+      ],
+      [
+        "git clone <url> <dossier>",
+        "Télécharge le dépôt distant dans le dossier cible spécifié"
+      ]
+    ],
+    "examples": [
+      [
+        "git init",
+        "Commence le suivi de version dans le dossier de travail courant."
+      ],
+      [
+        "git clone https://github.com/torvalds/linux.git",
+        "Télécharge l'intégralité du code et de l'historique d'un projet."
+      ]
+    ],
+    "tip": "Lors d'un git clone, Git configure automatiquement le dépôt distant sous le nom origin et bascule sur la branche par défaut (main ou master)."
+  },
+  {
+    "name": "Synthèse : Le cycle de vie des 3 zones de Git",
+    "category": "Fondamentaux & Démarrage",
+    "description": "Comprendre comment circulent les fichiers entre l'espace de travail, la zone d'indexation, le dépôt local et le serveur distant.",
+    "tables": [
+      {
+        "caption": "Les 4 états et zones de travail dans Git",
+        "headers": [
+          "Zone",
+          "Rôle & Emplacement",
+          "Commandes associées"
+        ],
+        "rows": [
+          [
+            "Working Directory",
+            "Fichiers sur votre disque dur en cours d'édition (état Non indexé)",
+            "git status, git diff, git restore"
+          ],
+          [
+            "Staging Area (Index)",
+            "Zone tampon préparatoire contenant ce qui fera partie du prochain commit",
+            "git add ., git diff --staged, git restore --staged"
+          ],
+          [
+            "Repository Local (.git)",
+            "Base de données d'historique locale enregistrant les snapshots (commits)",
+            "git commit -m, git log --oneline, git reset"
+          ],
+          [
+            "Remote Repository",
+            "Serveur distant partagé accessible à l'équipe (GitHub, GitLab...)",
+            "git push, git pull, git fetch, git remote"
+          ]
+        ]
+      }
+    ],
+    "tip": "Le flux de travail standard est toujours : 1. Modifier les fichiers (Working Directory) → 2. Les indexer avec git add (Staging Area) → 3. Les enregistrer avec git commit (Repository Local) → 4. Les partager avec git push (Remote)."
+  }
+];
+
+const commandKinds = {
+  "git branch": "Commande",
+  "git switch": "Commande",
+  "git merge": "Commande",
+  "git status": "Commande",
+  "git add": "Commande",
+  "git commit": "Commande",
+  "git log": "Commande",
+  "git diff": "Commande",
+  "git restore & annulations": "Commande",
+  "git stash": "Commande",
+  "git fetch": "Commande",
+  "git pull": "Commande",
+  "git push": "Commande",
+  "git remote": "Commande",
+  "git init & git clone": "Commande",
+  "Synthèse : Le cycle de vie des 3 zones de Git": "Concept"
+};
+
+const kindHints = {
+  "Commande": "Commande Git usuelle",
+  "Concept": "Notion théorique ou cycle de travail"
+};
+
+const searchAliases = {
+  "git branch": [
+    "branche",
+    "branches",
+    "-a",
+    "-d",
+    "-D",
+    "-r",
+    "-m",
+    "supprimer",
+    "delete",
+    "lister"
+  ],
+  "git switch": [
+    "switch",
+    "-c",
+    "changer",
+    "checkout",
+    "basculer",
+    "créer branche",
+    "navigation"
+  ],
+  "git merge": [
+    "merge",
+    "fusion",
+    "fusionner",
+    "--abort",
+    "--no-ff",
+    "fast-forward",
+    "conflit"
+  ],
+  "git status": [
+    "status",
+    "statut",
+    "-s",
+    "-b",
+    "etat",
+    "fichiers modifies",
+    "index"
+  ],
+  "git add": [
+    "add",
+    "stage",
+    "staging",
+    "indexer",
+    "preparer",
+    "-p",
+    "-A",
+    "patch"
+  ],
+  "git commit": [
+    "commit",
+    "valider",
+    "enregistrer",
+    "-m",
+    "-am",
+    "--amend",
+    "message",
+    "snapshot"
+  ],
+  "git log": [
+    "log",
+    "historique",
+    "--oneline",
+    "--graph",
+    "commits",
+    "auteur",
+    "sha",
+    "tree"
+  ],
+  "git diff": [
+    "diff",
+    "differences",
+    "--staged",
+    "--cached",
+    "comparer",
+    "patch",
+    "lignes"
+  ],
+  "git restore & annulations": [
+    "restore",
+    "reset",
+    "revert",
+    "annuler",
+    "--staged",
+    "defaire",
+    "reinitialiser"
+  ],
+  "git stash": [
+    "stash",
+    "remise",
+    "pop",
+    "mettre de cote",
+    "pile",
+    "sauvegarder temporairement"
+  ],
+  "git fetch": [
+    "fetch",
+    "recuperer",
+    "telecharger",
+    "--prune",
+    "origin",
+    "distant",
+    "sans merge"
+  ],
+  "git pull": [
+    "pull",
+    "recuperer et fusionner",
+    "synchroniser",
+    "--rebase",
+    "origin",
+    "mettre a jour"
+  ],
+  "git push": [
+    "push",
+    "envoyer",
+    "-u",
+    "--set-upstream",
+    "origin",
+    "branche distante",
+    "--delete",
+    "partager"
+  ],
+  "git remote": [
+    "remote",
+    "-v",
+    "add",
+    "set-url",
+    "origin",
+    "serveur",
+    "depot distant",
+    "github",
+    "gitlab"
+  ],
+  "git init & git clone": [
+    "init",
+    "clone",
+    "initialiser",
+    "cloner",
+    "telecharger depot",
+    "demarrer"
+  ],
+  "Synthèse : Le cycle de vie des 3 zones de Git": [
+    "zones",
+    "cycle",
+    "working directory",
+    "staging area",
+    "index",
+    "repository",
+    "remote",
+    "flux"
+  ]
+};
+
+// Éléments du DOM
+const searchInput = document.getElementById("search-input");
+const categoryPillsEl = document.getElementById("category-pills");
+const board = document.getElementById("results-board");
+const countEl = document.getElementById("result-count");
+const resetBtn = document.getElementById("reset-btn");
+const titleOnlyBtn = document.getElementById("title-only-btn");
+const pinnedOnlyBtn = document.getElementById("pinned-only-btn");
+const themeToggleBtn = document.getElementById("theme-toggle-btn");
+const topBtn = document.getElementById("top-btn");
+const downloadBtn = document.getElementById("download-btn");
+const modal = document.getElementById("card-modal");
+const modalBody = document.getElementById("modal-body");
+const modalCloseBtn = document.getElementById("modal-close-btn");
+
+// Normalisation sans accents pour une recherche souple
+function norm(str) {
+    return (str || "").normalize("NFD").replace(/\p{M}/gu, "").toLocaleLowerCase("fr");
+}
+
+function escapeRegExp(val) {
+    return val.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+const ACCENT_MAP = {
+    "a": "[aàáâãäå]",
+    "e": "[eèéêë]",
+    "i": "[iìíîï]",
+    "o": "[oòóôõö]",
+    "u": "[uùúûü]",
+    "c": "[cç]",
+    "n": "[nñ]",
+    "y": "[yýÿ]"
+};
+
+function buildAccentPattern(term) {
+    const normTerm = term.normalize("NFD").replace(/\p{M}/gu, "");
+    let pattern = "";
+    for (const ch of normTerm) {
+        const lower = ch.toLowerCase();
+        if (ACCENT_MAP[lower]) {
+            pattern += ACCENT_MAP[lower];
+        } else if (/[.*+?^${}()|[\]\\]/.test(ch)) {
+            pattern += "\\" + ch;
+        } else {
+            pattern += ch;
+        }
+    }
+    return pattern;
+}
+
+function highlightText(container, text, query) {
+    if (text == null || text === "") return;
+    const str = String(text);
+    const terms = (query || "").trim().split(/\s+/).filter(Boolean);
+    if (!terms.length) {
+        container.appendChild(document.createTextNode(str));
+        return;
+    }
+    let regex;
+    try {
+        const patterns = terms.map(buildAccentPattern).filter(Boolean);
+        if (!patterns.length) {
+            container.appendChild(document.createTextNode(str));
+            return;
+        }
+        regex = new RegExp("(" + patterns.join("|") + ")", "gi");
+    } catch (e) {
+        container.appendChild(document.createTextNode(str));
+        return;
+    }
+
+    let lastIdx = 0;
+    try {
+        for (const match of str.matchAll(regex)) {
+            const idx = match.index;
+            if (idx < lastIdx) continue;
+            if (idx > lastIdx) {
+                container.appendChild(document.createTextNode(str.slice(lastIdx, idx)));
+            }
+            const mark = document.createElement("mark");
+            mark.textContent = match[0];
+            container.appendChild(mark);
+            lastIdx = idx + match[0].length;
+        }
+        if (lastIdx < str.length) {
+            container.appendChild(document.createTextNode(str.slice(lastIdx)));
+        }
+    } catch (e) {
+        if (lastIdx < str.length) {
+            container.appendChild(document.createTextNode(str.slice(lastIdx)));
+        }
+    }
+}
+
+// Coloration syntaxique pour Git
+function tokenizeGit(code) {
+    const tokenRegex = /(#[^\n]*)|("[^"\\]*(?:\\.[^"\\]*)*"|'[^'\\]*(?:\\.[^'\\]*)*')|(\bgit\b)|(\b(?:branch|switch|checkout|status|add|commit|log|diff|fetch|pull|push|clone|init|merge|rebase|restore|reset|remote|stash|tag|cherry-pick|show)\b)|((?<=\s|^)(?:--[a-zA-Z0-9-]+|-[a-zA-Z0-9]+))|(\b(?:origin|HEAD|main|master)\b)|([|;&<>])/g;
+
+    let lastIdx = 0;
+    const result = [];
+    let match;
+    while ((match = tokenRegex.exec(code)) !== null) {
+        if (match.index > lastIdx) {
+            result.push({ type: "text", val: code.slice(lastIdx, match.index) });
+        }
+        const [full, comment, str, gitCmd, subcommand, flag, gitRef, punct] = match;
+        if (comment) result.push({ type: "comment", val: comment });
+        else if (str) result.push({ type: "string", val: str });
+        else if (gitCmd) result.push({ type: "builtin", val: gitCmd });
+        else if (subcommand) result.push({ type: "keyword", val: subcommand });
+        else if (flag) result.push({ type: "var", val: flag });
+        else if (gitRef) result.push({ type: "number", val: gitRef });
+        else if (punct) result.push({ type: "punct", val: punct });
+        lastIdx = tokenRegex.lastIndex;
+    }
+    if (lastIdx < code.length) {
+        result.push({ type: "text", val: code.slice(lastIdx) });
+    }
+    return result;
+}
+
+function renderHighlightedCode(container, code, rawQuery, lang = "git") {
+    const tokens = tokenizeGit(code);
+    tokens.forEach(tok => {
+        if (tok.type === "text") {
+            highlightText(container, tok.val, rawQuery);
+        } else {
+            const span = document.createElement("span");
+            span.className = "hl-" + tok.type;
+            highlightText(span, tok.val, rawQuery);
+            container.appendChild(span);
+        }
+    });
+}
+
+// Initialisation des pilules de catégories
+const categories = ["Toutes", ...Array.from(new Set(commands.map(c => c.category)))];
+function renderCategories() {
+    categoryPillsEl.replaceChildren();
+    categories.forEach(cat => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        const isAll = cat === "Toutes";
+        const isActive = (isAll && !activeCategory) || cat === activeCategory;
+        btn.className = "cat-pill" + (isActive ? " active" : "");
+        btn.textContent = cat;
+        btn.onclick = () => {
+            activeCategory = isAll ? "" : cat;
+            renderCategories();
+            renderBoard();
+        };
+        categoryPillsEl.appendChild(btn);
+    });
+}
+
+// Calcul du nombre de colonnes selon la largeur de l'écran (1 colonne sur mobile/tablette < 900px, 2 max sur grand écran)
+function getColumnCount() {
+    const w = window.innerWidth;
+    if (w < 900) return 1;
+    return 2;
+}
+
+// Construction d'un tableau HTML pour les cartes qui en possèdent
+function buildTableElement(tableData, rawQuery) {
+    const wrap = document.createElement("div");
+    wrap.className = "table-wrap";
+    const table = document.createElement("table");
+    if (tableData.caption) {
+        const cap = document.createElement("caption");
+        highlightText(cap, tableData.caption, rawQuery);
+        table.appendChild(cap);
+    }
+    const thead = document.createElement("thead");
+    const trHead = document.createElement("tr");
+    tableData.headers.forEach(h => {
+        const th = document.createElement("th");
+        highlightText(th, h, rawQuery);
+        trHead.appendChild(th);
+    });
+    thead.appendChild(trHead);
+    table.appendChild(thead);
+
+    const tbody = document.createElement("tbody");
+    tableData.rows.forEach(row => {
+        const tr = document.createElement("tr");
+        row.forEach((cellText, idx) => {
+            const cell = document.createElement(idx === 0 ? "th" : "td");
+            highlightText(cell, cellText, rawQuery);
+            tr.appendChild(cell);
+        });
+        tbody.appendChild(tr);
+    });
+    table.appendChild(tbody);
+    wrap.appendChild(table);
+    return wrap;
+}
+
+// Copie dans le presse-papiers
+function copyToClipboard(btn, text) {
+    navigator.clipboard.writeText(text).then(() => {
+        const orig = btn.textContent;
+        btn.textContent = "Copié";
+        btn.classList.add("copied");
+        setTimeout(() => {
+            btn.textContent = orig;
+            btn.classList.remove("copied");
+        }, 1300);
+    }).catch(() => {
+        window.prompt("Copiez la commande :", text);
+    });
+}
+
+// Persistance des cartes épinglées
+const PINNED_STORAGE_KEY = "pinned_git_commands";
+
+function loadPinned() {
+    try {
+        const saved = localStorage.getItem(PINNED_STORAGE_KEY);
+        if (saved) {
+            const arr = JSON.parse(saved);
+            if (Array.isArray(arr)) {
+                arr.forEach(name => pinnedSet.add(name));
+            }
+        }
+    } catch (e) {}
+}
+
+function savePinned() {
+    try {
+        localStorage.setItem(PINNED_STORAGE_KEY, JSON.stringify(Array.from(pinnedSet)));
+    } catch (e) {}
+}
+
+// Création d'une carte DOM complète
+function createCardElement(cmd, rawQuery, isModal = false) {
+    const card = document.createElement("article");
+    card.className = "card" + (pinnedSet.has(cmd.name) ? " pinned" : "");
+    if (isModal) {
+        card.style.cursor = "default";
+        card.style.boxShadow = "none";
+        card.style.border = "none";
+        card.style.background = "transparent";
+        card.style.padding = "0";
+    }
+
+    // En-tête de la carte
+    const header = document.createElement("div");
+    header.className = "card-header";
+
+    const titleGroup = document.createElement("div");
+    titleGroup.className = "card-title-group";
+
+    const title = document.createElement("h2");
+    title.className = "card-title";
+    highlightText(title, cmd.name, rawQuery);
+    titleGroup.appendChild(title);
+
+    const kind = commandKinds[cmd.name];
+    if (kind) {
+        const kBadge = document.createElement("span");
+        kBadge.className = "kind-badge";
+        kBadge.textContent = kind;
+        if (kindHints[kind]) kBadge.title = kindHints[kind];
+        titleGroup.appendChild(kBadge);
+    }
+
+    const badgeGroup = document.createElement("div");
+    badgeGroup.className = "badge-group";
+
+    const cBadge = document.createElement("span");
+    cBadge.className = "cat-badge";
+    cBadge.textContent = cmd.category;
+    badgeGroup.appendChild(cBadge);
+
+    const pinBtn = document.createElement("button");
+    pinBtn.type = "button";
+    pinBtn.className = "pin-btn";
+    pinBtn.title = pinnedSet.has(cmd.name) ? "Retirer de la sélection" : "Épingler cette carte pour réviser";
+    pinBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>';
+    pinBtn.onclick = (e) => {
+        e.stopPropagation();
+        if (pinnedSet.has(cmd.name)) {
+            pinnedSet.delete(cmd.name);
+        } else {
+            pinnedSet.add(cmd.name);
+        }
+        savePinned();
+        updatePinnedUI();
+        if (pinnedOnly) {
+            renderBoard();
+        } else {
+            card.classList.toggle("pinned", pinnedSet.has(cmd.name));
+        }
+    };
+    badgeGroup.appendChild(pinBtn);
+
+    header.append(titleGroup, badgeGroup);
+    card.appendChild(header);
+
+    // Description
+    const desc = document.createElement("p");
+    desc.className = "card-desc";
+    highlightText(desc, cmd.description, rawQuery);
+    card.appendChild(desc);
+
+    // Tableaux éventuels
+    if (cmd.tables && cmd.tables.length) {
+        cmd.tables.forEach(t => card.appendChild(buildTableElement(t, rawQuery)));
+    }
+
+    // Options
+    if (cmd.options && cmd.options.length) {
+        const optWrap = document.createElement("div");
+        const optTitle = document.createElement("div");
+        optTitle.className = "section-label";
+        optTitle.textContent = "Options & Syntaxe";
+        optWrap.appendChild(optTitle);
+
+        const optGrid = document.createElement("div");
+        optGrid.className = "options-grid";
+        cmd.options.forEach(([optKey, optDesc]) => {
+            const row = document.createElement("div");
+            row.className = "opt-row";
+            const k = document.createElement("code");
+            k.className = "opt-key";
+            renderHighlightedCode(k, optKey, rawQuery, "git");
+            const v = document.createElement("span");
+            v.className = "opt-val";
+            highlightText(v, optDesc, rawQuery);
+            row.append(k, v);
+            optGrid.appendChild(row);
+        });
+        optWrap.appendChild(optGrid);
+        card.appendChild(optWrap);
+    }
+
+    // Exemples
+    if (cmd.examples && cmd.examples.length) {
+        const exWrap = document.createElement("div");
+        const exTitle = document.createElement("div");
+        exTitle.className = "section-label";
+        exTitle.textContent = "Exemples pratiques";
+        exWrap.appendChild(exTitle);
+
+        const exList = document.createElement("div");
+        exList.className = "examples-list";
+        cmd.examples.forEach(([exCode, exExp]) => {
+            const item = document.createElement("div");
+            item.className = "example-item";
+
+            const top = document.createElement("div");
+            top.className = "example-top";
+
+            const codeEl = document.createElement("code");
+            codeEl.className = "example-code";
+            renderHighlightedCode(codeEl, exCode, rawQuery, "git");
+
+            const copyBtn = document.createElement("button");
+            copyBtn.type = "button";
+            copyBtn.className = "copy-btn";
+            copyBtn.textContent = "Copier";
+            copyBtn.onclick = (e) => {
+                e.stopPropagation();
+                copyToClipboard(copyBtn, exCode);
+            };
+
+            top.append(codeEl, copyBtn);
+
+            const expEl = document.createElement("span");
+            expEl.className = "example-exp";
+            highlightText(expEl, exExp, rawQuery);
+
+            item.append(top, expEl);
+            exList.appendChild(item);
+        });
+        exWrap.appendChild(exList);
+        card.appendChild(exWrap);
+    }
+
+    // Note / Avertissement
+    if (cmd.warning || cmd.tip) {
+        const note = document.createElement("div");
+        note.className = "card-note" + (cmd.warning ? " warning" : "");
+        highlightText(note, cmd.warning || cmd.tip, rawQuery);
+        card.appendChild(note);
+    }
+
+    // Clic sur la carte -> Ouverture de la modale si pas en mode modale, hors boutons/liens/code et sans sélection de texte
+    if (!isModal) {
+        card.addEventListener("click", (e) => {
+            if (e.target.closest("button, a, input, code")) return;
+            const selection = window.getSelection();
+            if (selection && selection.toString().trim().length > 0) return;
+            openCardModal(cmd, rawQuery);
+        });
+    }
+
+    return card;
+}
+
+function openCardModal(cmd, rawQuery) {
+    modalBody.replaceChildren();
+    const detailedCard = createCardElement(cmd, rawQuery, true);
+    modalBody.appendChild(detailedCard);
+    if (!modal.open) {
+        modal.showModal();
+    }
+}
+
+function updatePinnedUI() {
+    pinnedOnlyBtn.textContent = `Sélection (${pinnedSet.size})`;
+    pinnedOnlyBtn.disabled = pinnedSet.size === 0 && !pinnedOnly;
+    pinnedOnlyBtn.setAttribute("aria-pressed", String(pinnedOnly));
+}
+
+// Distribution intelligente dans N colonnes indépendantes :
+// Chaque nouvelle carte est placée dans la colonne la plus courte -> ZÉRO TROU VISUEL
+function renderBoard() {
+    const rawQuery = searchInput.value.trim();
+    const queryNorm = norm(rawQuery);
+    const terms = queryNorm.split(/\s+/).filter(Boolean);
+
+    const filtered = commands.filter(cmd => {
+        if (activeCategory && cmd.category !== activeCategory) return false;
+        if (pinnedOnly && !pinnedSet.has(cmd.name)) return false;
+        if (!terms.length) return true;
+
+        const aliases = (searchAliases[cmd.name] || []).join(" ");
+        const haystack = titleOnly
+            ? norm(cmd.name)
+            : norm(JSON.stringify(cmd) + " " + aliases);
+        return terms.every(t => haystack.includes(t));
+    });
+
+    updatePinnedUI();
+    countEl.innerHTML = `<strong>${filtered.length}</strong> fiche${filtered.length > 1 ? "s" : ""} affichée${filtered.length > 1 ? "s" : ""}`;
+
+    board.replaceChildren();
+
+    if (!filtered.length) {
+        const empty = document.createElement("div");
+        empty.className = "empty-state";
+        empty.textContent = "Aucune commande ne correspond à votre recherche. Essayez un autre terme ou réinitialisez les filtres.";
+        board.appendChild(empty);
+        return;
+    }
+
+    board.style.display = "grid";
+    const numCols = getColumnCount();
+    board.style.setProperty("--cols", numCols);
+
+    const colElements = [];
+    const colHeights = [];
+
+    for (let i = 0; i < numCols; i++) {
+        const col = document.createElement("div");
+        col.className = "masonry-col";
+        board.appendChild(col);
+        colElements.push(col);
+        colHeights.push(0);
+    }
+
+    // Répartition équilibrée selon le poids estimé du contenu de chaque carte
+    filtered.forEach(cmd => {
+        const cardEl = createCardElement(cmd, rawQuery);
+        let minColIndex = 0;
+        for (let i = 1; i < numCols; i++) {
+            if (colHeights[i] < colHeights[minColIndex]) {
+                minColIndex = i;
+            }
+        }
+        colElements[minColIndex].appendChild(cardEl);
+        const estimatedWeight = 120
+            + (cmd.description ? cmd.description.length * 0.5 : 0)
+            + (cmd.options ? cmd.options.length * 36 : 0)
+            + (cmd.examples ? cmd.examples.length * 52 : 0)
+            + (cmd.tables ? cmd.tables.length * 160 : 0)
+            + (cmd.warning || cmd.tip ? 60 : 0);
+        colHeights[minColIndex] += estimatedWeight;
+    });
+}
+
+// Gestion du redimensionnement d'écran
+let currentCols = getColumnCount();
+let resizeTimer = null;
+window.addEventListener("resize", () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => {
+        const newCols = getColumnCount();
+        if (newCols !== currentCols) {
+            currentCols = newCols;
+            renderBoard();
+        }
+    }, 80);
+});
+
+// Épinglage
+function togglePin(name) {
+    if (pinnedSet.has(name)) {
+        pinnedSet.delete(name);
+    } else {
+        pinnedSet.add(name);
+    }
+    savePinned();
+    renderBoard();
+}
+
+// État des filtres
+let activeCategory = "";
+let titleOnly = false;
+let pinnedOnly = false;
+const pinnedSet = new Set();
+
+// Écouteurs d'événements
+searchInput.addEventListener("input", renderBoard);
+
+titleOnlyBtn.addEventListener("click", () => {
+    titleOnly = !titleOnly;
+    titleOnlyBtn.setAttribute("aria-pressed", String(titleOnly));
+    titleOnlyBtn.classList.toggle("btn-active", titleOnly);
+    renderBoard();
+});
+
+pinnedOnlyBtn.addEventListener("click", () => {
+    if (pinnedSet.size === 0 && !pinnedOnly) return;
+    pinnedOnly = !pinnedOnly;
+    pinnedOnlyBtn.setAttribute("aria-pressed", String(pinnedOnly));
+    pinnedOnlyBtn.classList.toggle("btn-active", pinnedOnly);
+    renderBoard();
+});
+
+resetBtn.addEventListener("click", () => {
+    searchInput.value = "";
+    activeCategory = "";
+    titleOnly = false;
+    pinnedOnly = false;
+    pinnedSet.clear();
+    savePinned();
+    titleOnlyBtn.setAttribute("aria-pressed", "false");
+    titleOnlyBtn.classList.remove("btn-active");
+    pinnedOnlyBtn.setAttribute("aria-pressed", "false");
+    pinnedOnlyBtn.classList.remove("btn-active");
+    renderCategories();
+    renderBoard();
+    searchInput.focus();
+});
+
+// Raccourcis clavier
+window.addEventListener("keydown", (e) => {
+    if (e.key === "/" && document.activeElement !== searchInput && !modal.open) {
+        e.preventDefault();
+        searchInput.focus();
+        searchInput.select();
+    } else if (e.key === "Escape") {
+        if (modal && modal.open) {
+            modal.close();
+        } else if (searchInput.value) {
+            searchInput.value = "";
+            renderBoard();
+        }
+    }
+});
+
+// Gestion de la modale
+modalCloseBtn.addEventListener("click", () => modal.close());
+modal.addEventListener("click", (e) => {
+    if (e.target === modal) modal.close();
+});
+
+// Bouton remonter en haut
+topBtn.addEventListener("click", () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+});
+
+// Gestion du thème
+const THEME_STORAGE_KEY = "revision_theme_preference";
+
+function syncThemeButtonLabel() {
+    const currentTheme = document.documentElement.getAttribute("data-theme") || "dark";
+    const isLight = currentTheme === "light";
+    themeToggleBtn.textContent = isLight ? "Passer au thème sombre" : "Passer au thème clair";
+}
+
+themeToggleBtn.addEventListener("click", () => {
+    const currentTheme = document.documentElement.getAttribute("data-theme") || "dark";
+    const nextTheme = currentTheme === "dark" ? "light" : "dark";
+    document.documentElement.setAttribute("data-theme", nextTheme);
+    try {
+        localStorage.setItem(THEME_STORAGE_KEY, nextTheme);
+    } catch (e) {}
+    syncThemeButtonLabel();
+});
+
+// Téléchargement / Export autonome (offline complet)
+downloadBtn.addEventListener("click", () => {
+    const clone = document.documentElement.cloneNode(true);
+    const boardClone = clone.querySelector("#results-board");
+    if (boardClone) boardClone.replaceChildren();
+    const pillsClone = clone.querySelector("#category-pills");
+    if (pillsClone) pillsClone.replaceChildren();
+    clone.querySelectorAll("dialog[open]").forEach(d => d.removeAttribute("open"));
+    const searchClone = clone.querySelector("#search-input");
+    if (searchClone) searchClone.value = "";
+    const htmlStr = "<!DOCTYPE html>\n" + clone.outerHTML;
+    const blob = new Blob([htmlStr], { type: "text/html;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "fiche-revision-git.html";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+});
+
+// Lancement initial
+loadPinned();
+syncThemeButtonLabel();
+renderCategories();
+renderBoard();
+</script>
+</body>
+</html>
